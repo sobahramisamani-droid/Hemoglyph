@@ -1068,30 +1068,78 @@ elif step == 4:
             try:
                 client = groq.Client(api_key=api_key)
 
-                # Separate diagnoses by status
-                compatible = [d for d in diagnoses if d.get("status") == "Present" or "Compatible" in str(d.get("evidence"))]
-                non_compatible = [d for d in diagnoses if d.get("status") not in ("Present", "Evaluated", "AlreadyDiagnosed") and "Compatible" not in str(d.get("evidence")) and d.get("status") != "Insufficient Data"]
-                incomplete = [d for d in diagnoses if d.get("status") == "Insufficient Data"]
+                abnormal_labs = []
+                gender_lower = "male" if patient_info.get("Sex") == 1 else "female"
+                for key, val in inputs.items():
+                    if key in PROFILE_KEYS:
+                        continue
+                    fdata = FEATURE_REGISTRY.get(key, {})
+                    refs = fdata.get("referenceRanges", [])
+                    ref = next((r for r in refs if r.get("gender") == gender_lower), refs[0] if refs else None)
+                    if ref and "range" in ref:
+                        low, high = ref["range"]
+                        try:
+                            v = float(val)
+                            if v < low:
+                                abnormal_labs.append(f"{fdata.get('displayEn', key)}: {v} {fdata.get('unit', '')} ⬇️ LOW (normal: {low}-{high})")
+                            elif v > high:
+                                abnormal_labs.append(f"{fdata.get('displayEn', key)}: {v} {fdata.get('unit', '')} ⬆️ HIGH (normal: {low}-{high})")
+                        except:
+                            pass
+                        
+                compatible = []
+                non_compatible = []
+                incomplete = []
+
+                for d in diagnoses:
+                    status = d.get("status", "")
+                    evidence = d.get("evidence", [])
+                    if status == "Present" or "Compatible" in str(evidence):
+                        compatible.append({
+                            "name": d.get("nameEn", ""),
+                            "icd10": d.get("icd10", ""),
+                            "evidence": evidence[:3],
+                            "guideline": d.get("guideline", "")
+                        })
+                    elif status == "Insufficient Data":
+                        incomplete.append({
+                            "name": d.get("nameEn", ""),
+                            "icd10": d.get("icd10", ""),
+                            "missing": d.get("missingFeatures", [])
+                        })
+                    elif status not in ("Evaluated", "AlreadyDiagnosed", "Insufficient Data", "No Input Data"):
+                        non_compatible.append({
+                            "name": d.get("nameEn", ""),
+                            "icd10": d.get("icd10", ""),
+                            "criteria": d.get("noteEn", "")[:200]
+                        })
+
+                risk_summary = []
+                for r in risks:
+                    if r.get("status") in ("Evaluated", "AlreadyDiagnosed"):
+                        risk_summary.append({
+                            "disease": r.get("nameEn", ""),
+                            "probability": f"{round(r.get('probability', 0) * 100, 1)}%",
+                            "level": r.get("riskLevel", "")
+                        })
 
                 prompt = f"""
         You are a double‑board‑certified Clinical Pathologist and Laboratory Director with 20 years of teaching experience.
         You are reviewing a patient's complete laboratory profile and creating a detailed, educational consultation report.
-        Explain every finding thoroughly, as if you were mentoring a junior doctor.
 
         ### PATIENT PROFILE
-        - Age: {patient_info.get('Age')} years
-        - Sex: {"Male" if patient_info.get('Sex') == 1 else "Female"}
-        - Weight: {patient_info.get('Weight')} kg | Height: {patient_info.get('Height')} cm
-        - BMI: {derived.get('BMI', 'N/A')} kg/m²
-        - Smoking: {"Yes" if patient_info.get('Smoking') == 1 else "No"}
-        - Family History DM: {"Yes" if patient_info.get('FamilyHistory_DM') == 1 else "No"}
-        - Family History CAD: {"Yes" if patient_info.get('FamilyHistory_CAD') == 1 else "No"}
+        Age: {patient_info.get('Age')} | Sex: {"Male" if patient_info.get('Sex') == 1 else "Female"}
+        Weight: {patient_info.get('Weight')} kg | Height: {patient_info.get('Height')} cm | BMI: {derived.get('BMI', 'N/A')}
+        Smoking: {"Yes" if patient_info.get('Smoking') == 1 else "No"}
+        Family History DM: {"Yes" if patient_info.get('FamilyHistory_DM') == 1 else "No"} | CAD: {"Yes" if patient_info.get('FamilyHistory_CAD') == 1 else "No"}
 
-        ### ALL ENTERED LABORATORY VALUES
-        {json.dumps(inputs, indent=2)}
+        ### ABNORMAL LABORATORY VALUES
+        {json.dumps(abnormal_labs, indent=2) if abnormal_labs else "All values within normal range."}
 
         ### DERIVED METRICS
-        {json.dumps(derived, indent=2)}
+        eGFR: {derived.get('eGFR', 'N/A')} | HOMA-IR: {derived.get('HOMA_IR', 'N/A')} | ACR: {derived.get('ACR', 'N/A')}
+        BMI: {derived.get('BMI', 'N/A')} | Transferrin Sat: {derived.get('Transferrin_Sat', 'N/A')}%
+        Non-HDL: {derived.get('Non_HDL', 'N/A')} | VLDL: {derived.get('VLDL', 'N/A')}
 
         ### COMPATIBLE DIAGNOSES (Guideline‑Confirmed)
         {json.dumps(compatible, indent=2) if compatible else "None"}
@@ -1103,39 +1151,39 @@ elif step == 4:
         {json.dumps(incomplete, indent=2) if incomplete else "None"}
 
         ### 2‑YEAR RISK PREDICTIONS
-        {json.dumps(risks, indent=2)}
+        {json.dumps(risk_summary, indent=2) if risk_summary else "No risk predictions available."}
 
         ### YOUR TASK
-        Produce a **detailed, narrative‑style medical report** with the following sections.
-        For each section, write thorough explanations (3-6 sentences per item where applicable).
+        Produce a detailed, narrative‑style medical report with the following sections.
+        For each section, write thorough explanations.
 
         ## 1️⃣ DETAILED ANALYSIS OF COMPATIBLE DIAGNOSES
         For each compatible disease:
-        - **Disease** (ICD‑10)
-        - **Key Abnormal Values**: List each relevant lab result with the patient’s exact number, the normal range, and a clear description of how far it deviates.
-        - **Pathophysiology**: Explain in plain language the biological mechanism that connects the abnormal lab values to the disease.
-        - **Clinical Implications**: What does this finding mean for the patient’s health now and in the near future?
-        - **Guideline Reference**: Mention the specific guideline (e.g., ADA, KDIGO) that defines the criteria.
-        - **Suggested Actions**: What confirmatory tests, lifestyle changes, or referrals are typically recommended?
+        - Disease (ICD‑10)
+        - Key Abnormal Values: List each relevant lab result with the patient's exact number, the normal range, and how far it deviates.
+        - Pathophysiology: Explain the biological mechanism that connects the abnormal lab values to the disease.
+        - Clinical Implications: What does this finding mean for the patient's health now and in the future?
+        - Guideline Reference: Mention the specific guideline that defines the criteria.
+        - Suggested Actions: What confirmatory tests, lifestyle changes, or referrals are recommended?
 
         ## 2️⃣ DETAILED ANALYSIS OF NON‑COMPATIBLE DIAGNOSES
         For each ruled‑out disease:
-        - **Disease** (ICD‑10)
-        - **Diagnostic Criteria**: State the exact criteria required by the guideline.
-        - **Why It Was Ruled Out**: Explain precisely which criteria were not met, using the patient’s actual numbers.
-        - **What Would Change the Picture**: Under what circumstances (e.g., which labs would need to worsen) might this diagnosis become relevant in the future.
+        - Disease (ICD‑10)
+        - Diagnostic Criteria: State the exact criteria required by the guideline.
+        - Why It Was Ruled Out: Explain precisely which criteria were not met, using the patient's actual numbers.
+        - What Would Change the Picture: Under what circumstances might this diagnosis become relevant in the future.
 
         ## 3️⃣ MISSING DATA — WHAT WE STILL NEED
         For each disease that could not be fully assessed:
-        - **Disease**
-        - **Missing Laboratory Tests**: List the exact missing tests.
-        - **Why They Matter**: Explain what information those tests would provide.
+        - Disease
+        - Missing Laboratory Tests: List the exact missing tests.
+        - Why They Matter: Explain what information those tests would provide.
 
         ## 4️⃣ RECOMMENDED SPECIALIST REFERRALS
         Based on the compatible findings, recommend the appropriate specialists. For each:
-        - **Specialist** (e.g., Endocrinologist, Cardiologist, Nephrologist)
-        - **Reasoning**: Cite the specific abnormal findings that warrant this referral.
-        - **Urgency**: Indicate whether the referral should be routine, semi‑urgent, or urgent.
+        - Specialist (e.g., Endocrinologist, Cardiologist, Nephrologist)
+        - Reasoning: Cite the specific abnormal findings that warrant this referral.
+        - Urgency: Indicate whether the referral should be routine, semi‑urgent, or urgent.
 
         ## 5️⃣ 2‑YEAR RISK TRAJECTORY INTERPRETATION
         Explain in detail what the risk predictions mean:
@@ -1151,8 +1199,8 @@ elif step == 4:
         - Conveys empathy and reassurance while being honest about health risks
 
         **CRITICAL RULES:**
-        - Use ONLY the patient’s actual laboratory values provided above.
-        - Be precise: always include the patient’s result and the normal range when discussing a lab test.
+        - Use ONLY the patient's actual laboratory values provided above.
+        - Be precise: always include the patient's result and the normal range when discussing a lab test.
         - Never diagnose disease conclusively or prescribe medications — always recommend physician consultation.
         - Write in a professional, educational tone that a patient can understand.
         """
@@ -1164,7 +1212,7 @@ elif step == 4:
                     model="llama-3.1-8b-instant",
                     messages=messages,
                     temperature=0.3,
-                    max_tokens=1000   
+                    max_tokens=1200
                 )
                 return response.choices[0].message.content
             except Exception as e:
