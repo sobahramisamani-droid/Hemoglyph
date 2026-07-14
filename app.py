@@ -1164,7 +1164,7 @@ elif step == 4:
                     model="llama-3.1-8b-instant",
                     messages=messages,
                     temperature=0.3,
-                    max_tokens=1500   # افزایش فضای پاسخ
+                    max_tokens=1000   
                 )
                 return response.choices[0].message.content
             except Exception as e:
