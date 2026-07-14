@@ -1,18 +1,15 @@
-# AI.py
 
 import os
 import logging
 from dotenv import load_dotenv
 import groq
 import streamlit as st
-
 load_dotenv()
 logger = logging.getLogger(__name__)
 
-
 class BloodLabChatbot:
     """BloodLab AI Assistant – Groq version"""
-
+    
     SYSTEM_INSTRUCTION = """You are **BloodLab AI Assistant**, a specialized medical AI that ONLY answers questions related to blood tests, laboratory values, disease predictions, clinical findings, medical terminology, and recommendations based on the patient's laboratory report.
 
 **Rules you must follow strictly:**
@@ -31,7 +28,7 @@ class BloodLabChatbot:
     KEEP_LAST_MESSAGES = 8
     MAX_NORMAL_VALUES = 3
 
-    # ----------------------------------------------------------------
+    
     def __init__(self, api_key: str | None = None, model: str = "llama-3.3-70b-versatile"):
         if api_key is None:
             try:
@@ -50,7 +47,7 @@ class BloodLabChatbot:
         self.history: list[dict] = []
         self.question_count: int = 0
 
-    # ----------------------------------------------------------------
+    
     def build_and_set_context(self, patient_prof, clean_inputs, derived,
                               active_diagnoses, risk_predictions,
                               feature_registry, profile_keys):
@@ -135,7 +132,7 @@ class BloodLabChatbot:
 
         self.patient_context = "\n".join(lines)
 
-    # ----------------------------------------------------------------
+    
     def generate_initial_summary(self) -> str:
         if not self.patient_context:
             raise ValueError("Patient context has not been set.")
@@ -156,14 +153,14 @@ class BloodLabChatbot:
             logger.warning(f"generate_initial_summary failed: {e}")
             return "I'm sorry, I couldn't generate the summary. Please check your API key and try again."
 
-    # ----------------------------------------------------------------
+    
     def chat(self, user_message: str) -> str:
         if self.question_count >= self.MAX_QUESTIONS:
             return "You have reached the maximum number of questions for this session. Please consult your physician for further information."
 
         self.question_count += 1
 
-        # System instruction + patient context as system message
+       
         messages = [{"role": "system", "content": self.SYSTEM_INSTRUCTION}]
 
         if self.patient_context:
@@ -194,7 +191,6 @@ class BloodLabChatbot:
         self.history.append({"role": "assistant", "content": reply})
         return reply
 
-    # ----------------------------------------------------------------
     def reset(self):
         self.history.clear()
         self.question_count = 0
