@@ -1,5 +1,3 @@
-# clinical_data.py
-
 class FeatureCategory:
     CLINICAL = "Clinical"
     CBC = "CBC"
@@ -32,7 +30,6 @@ class FeatureCategory:
     INFECTIOUS = "Infectious Serology"
 
 FEATURE_REGISTRY = {
-    # --- CLINICAL ---
     "Age": {
         "canonical": "Age",
         "displayEn": "Age",
@@ -107,7 +104,6 @@ FEATURE_REGISTRY = {
         "referenceRanges": [{"range": [60, 100]}]
     },
 
-    # --- CBC ---
     "WBC": {
         "canonical": "WBC",
         "displayEn": "WBC (White Blood Cells)",
@@ -246,7 +242,6 @@ FEATURE_REGISTRY = {
         "referenceRanges": [{"range": [1.0, 4.8]}]
     },
 
-    # --- IRON STUDIES ---
     "Ferritin": {
         "canonical": "Ferritin",
         "displayEn": "Ferritin",
@@ -292,7 +287,6 @@ FEATURE_REGISTRY = {
         "referenceRanges": [{"range": [20, 50]}]
     },
 
-    # --- VITAMIN PANEL ---
     "VitaminB12": {
         "canonical": "VitaminB12",
         "displayEn": "Vitamin B12",
@@ -317,8 +311,6 @@ FEATURE_REGISTRY = {
         "aliases": ["vit_d", "vitamin_d", "25_oh_vitamin_d"],
         "referenceRanges": [{"range": [20, 100]}]  # deficiency <20, so normal starts at 20
     },
-
-    # --- THYROID PANEL ---
     "TSH": {
         "canonical": "TSH",
         "displayEn": "TSH",
@@ -411,7 +403,6 @@ FEATURE_REGISTRY = {
         "referenceRanges": [{"range": [0, 2.5]}]
     },
 
-    # --- LIPID PANEL ---
     "Total_Cholesterol": {
         "canonical": "Total_Cholesterol",
         "displayEn": "Total Cholesterol",
@@ -465,8 +456,6 @@ FEATURE_REGISTRY = {
         "derived": True,
         "referenceRanges": [{"range": [5, 40]}]
     },
-
-    # --- RENAL FUNCTION PANEL ---
     "Creatinine": {
         "canonical": "Creatinine",
         "displayEn": "Serum Creatinine",
@@ -514,8 +503,6 @@ FEATURE_REGISTRY = {
             {"gender": "female", "range": [2.6, 6.0]}
         ]
     },
-
-    # --- LIVER FUNCTION PANEL ---
     "ALT": {
         "canonical": "ALT",
         "displayEn": "ALT (SGPT)",
@@ -603,8 +590,6 @@ FEATURE_REGISTRY = {
         "aliases": ["ast_alt_ratio"],
         "derived": True
     },
-
-    # --- ELECTROLYTE PANEL ---
     "Sodium": {
         "canonical": "Sodium",
         "displayEn": "Sodium",
@@ -646,8 +631,6 @@ FEATURE_REGISTRY = {
         "derived": True,
         "referenceRanges": [{"range": [8, 16]}]
     },
-
-    # --- BONE & MINERAL PANEL ---
     "Calcium": {
         "canonical": "Calcium",
         "displayEn": "Total Calcium",
@@ -688,8 +671,6 @@ FEATURE_REGISTRY = {
         "aliases": ["pth"],
         "referenceRanges": [{"range": [15, 65]}]
     },
-
-    # --- CARDIAC BIOMARKERS ---
     "Troponin": {
         "canonical": "Troponin",
         "displayEn": "Cardiac Troponin I",
@@ -733,8 +714,6 @@ FEATURE_REGISTRY = {
             {"gender": "female", "range": [26, 140]}
         ]
     },
-
-    # --- COAGULATION PANEL ---
     "PT": {
         "canonical": "PT",
         "displayEn": "Prothrombin Time (PT)",
@@ -804,8 +783,6 @@ FEATURE_REGISTRY = {
         "aliases": ["procalcitonin", "pct"],
         "referenceRanges": [{"range": [0, 0.05]}]
     },
-
-    # --- HEMOLYSIS MARKERS (NEW) ---
     "LDH": {
         "canonical": "LDH",
         "displayEn": "Lactate Dehydrogenase",
@@ -822,8 +799,6 @@ FEATURE_REGISTRY = {
         "aliases": ["haptoglobin"],
         "referenceRanges": [{"range": [30, 200]}]
     },
-
-    # --- AUTOIMMUNE PANEL ---
     "ANA": {
         "canonical": "ANA",
         "displayEn": "ANA (Antinuclear Antibodies)",
@@ -917,8 +892,6 @@ FEATURE_REGISTRY = {
         "aliases": ["mpo"],
         "referenceRanges": [{"range": [0, 3.5]}]
     },
-
-    # --- RHEUMATOLOGY PANEL ---
     "RF": {
         "canonical": "RF",
         "displayEn": "Rheumatoid Factor (RF)",
@@ -1009,8 +982,6 @@ FEATURE_REGISTRY = {
         "aliases": ["g6pd"],
         "referenceRanges": [{"range": [60, 150]}]  # normal >60%
     },
-
-    # --- ENDOCRINE PANEL ---
     "Cortisol": {
         "canonical": "Cortisol",
         "displayEn": "Serum Cortisol (Morning)",
@@ -1062,8 +1033,6 @@ FEATURE_REGISTRY = {
         "aliases": ["fsh"],
         "referenceRanges": [{"range": [1.5, 12.5]}]
     },
-
-    # --- REPRODUCTIVE HORMONE PANEL ---
     "Estradiol": {
         "canonical": "Estradiol",
         "displayEn": "Estradiol",
@@ -1094,8 +1063,6 @@ FEATURE_REGISTRY = {
             {"gender": "female", "range": [15, 70]}
         ]
     },
-
-    # --- TUMOR MARKER PANEL ---
     "AFP": {
         "canonical": "AFP",
         "displayEn": "Alpha-Fetoprotein (AFP)",
@@ -1152,8 +1119,6 @@ FEATURE_REGISTRY = {
         "aliases": ["cga", "chromogranin"],
         "referenceRanges": [{"range": [0, 100]}]
     },
-
-    # --- PANCREATIC PANEL ---
     "Lipase": {
         "canonical": "Lipase",
         "displayEn": "Lipase",
@@ -1212,8 +1177,6 @@ FEATURE_REGISTRY = {
         "aliases": ["lactate"],
         "referenceRanges": [{"range": [0.5, 2.2]}]
     },
-
-    # --- URINALYSIS PANEL ---
     "UrineSpecificGravity": {
         "canonical": "UrineSpecificGravity",
         "displayEn": "Specific Gravity",
@@ -1288,8 +1251,6 @@ FEATURE_REGISTRY = {
         "aliases": ["u_rbc"],
         "referenceRanges": [{"range": [0, 3]}]
     },
-
-    # --- URINE PROTEIN PANEL ---
     "UrineAlbumin": {
         "canonical": "UrineAlbumin",
         "displayEn": "Urine Albumin (Microalbumin)",
@@ -1338,8 +1299,6 @@ FEATURE_REGISTRY = {
         "category": FeatureCategory.URINE_PROTEIN,
         "aliases": ["u_prot_quant", "urine_protein_quant"]
     },
-
-    # --- NUTRITION & MICRONUTRIENTS ---
     "Prealbumin": {
         "canonical": "Prealbumin",
         "displayEn": "Prealbumin",
