@@ -1,5 +1,3 @@
-# calculators.py
-
 def calc_bmi(weight: float, height: float) -> float | None:
     if not height or height <= 0:
         return None
@@ -55,22 +53,13 @@ def calc_anion_gap(na: float, cl: float, hco3: float) -> float | None:
     return round(na - (cl + hco3), 1)
 
 def calc_acr(urine_alb: float, urine_cr: float) -> float | None:
-    # Accept zero values (e.g., 0 albumin), only skip if truly None or invalid urine creatinine
     if urine_alb is None or urine_cr is None or urine_cr <= 0:
         return None
-    # Convert urine creatinine from mg/dL to g/dL for mg/g calculation:
-    # ACR (mg/g) = (urine albumin in mg/L) / (urine creatinine in g/L)
-    # Assuming urine_alb is in mg/L, urine_cr in mg/dL.
-    # 1 mg/dL = 0.01 g/L, so urine_cr (g/L) = urine_cr (mg/dL) * 0.01
-    # ACR = urine_alb / (urine_cr * 0.01) = (urine_alb * 100) / urine_cr
     return round((urine_alb * 100.0) / urine_cr, 1)
 
 def calc_pcr(urine_protein: float, urine_cr: float) -> float | None:
-    # Same fix: allow zero protein
     if urine_protein is None or urine_cr is None or urine_cr <= 0:
         return None
-    # PCR (mg/g) = (urine protein in mg/L) / (urine creatinine in g/L)
-    # urine protein in mg/L, creatinine in mg/dL -> same conversion
     return round((urine_protein * 100.0) / urine_cr, 1)
 
 def compute_all_derived(inputs: dict, age: float, gender: str) -> dict:
@@ -144,9 +133,6 @@ def compute_all_derived(inputs: dict, age: float, gender: str) -> dict:
         acr = calc_acr(urine_alb, urine_cr)
         if acr is not None:
             derived["ACR"] = acr
-
-    # For PCR, we need a quantitative urine protein value (mg/L).
-    # If such a field exists (e.g., "UrineProteinQuantitative"), use it.
     urine_prot_quant = inputs.get("UrineProteinQuantitative")
     if urine_prot_quant is not None and urine_cr is not None:
         pcr = calc_pcr(urine_prot_quant, urine_cr)
