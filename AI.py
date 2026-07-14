@@ -32,7 +32,7 @@ class BloodLabChatbot:
     MAX_NORMAL_VALUES = 3
 
     # ----------------------------------------------------------------
-    def __init__(self, api_key: str | None = None, model: str = "llama-3.1-8b-instant"):
+    def __init__(self, api_key: str | None = None, model: str = "llama-3.3-70b-versatile"):
         if api_key is None:
             try:
                 api_key = st.secrets["GROQ_API_KEY"]
