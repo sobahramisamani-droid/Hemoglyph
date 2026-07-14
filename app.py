@@ -11,7 +11,89 @@ from interpretation import interpret_lab_data
 from prediction import predict_2year_risks
 from disease_guidelines import DISEASE_GUIDELINES
 from AI import BloodLabChatbot
+st.markdown("""
+<style>
+    /* Import Vazir font */
+    @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v33.1.0/dist/font-face.css');
 
+    /* ============================
+       PROTECT STREAMLIT ICONS
+       ============================ */
+    [data-testid="stDecoration"],
+    [data-testid="stSidebar"],
+    .st-emotion-cache-1dp5m8t,
+    .st-emotion-cache-1hskb1m,
+    .st-emotion-cache-1v02s4x,
+    .st-emotion-cache-1n76nqr,
+    .st-emotion-cache-1o3jp5z,
+    .st-emotion-cache-1p1m4ay,
+    .st-emotion-cache-1p8iqe6,
+    .st-emotion-cache-1p4g8p1,
+    .st-emotion-cache-1p5wlh4,
+    .st-emotion-cache-1p6s9q4,
+    .st-emotion-cache-10trblm,
+    .st-emotion-cache-1q8ddzd,
+    .st-emotion-cache-183lzff,
+    .st-emotion-cache-1cvow4s,
+    .st-emotion-cache-16txtl3,
+    .st-emotion-cache-1kyxreq,
+    .st-emotion-cache-1v0mbdj,
+    .st-emotion-cache-1r6slb0,
+    .st-emotion-cache-1xarl3l,
+    .st-emotion-cache-1wmy9hl,
+    .st-emotion-cache-1avcm0n,
+    .st-emotion-cache-1f3w014,
+    .st-emotion-cache-1vtueo4,
+    .st-emotion-cache-1v7uza4,
+    .st-emotion-cache-1l6ema2,
+    .st-emotion-cache-1dp5m8t,
+    .st-emotion-cache-1hskb1m,
+    .st-emotion-cache-1v02s4x,
+    .st-emotion-cache-1n76nqr,
+    .st-emotion-cache-1o3jp5z,
+    .st-emotion-cache-1p1m4ay,
+    .st-emotion-cache-1p8iqe6,
+    .st-emotion-cache-1p4g8p1,
+    .st-emotion-cache-1p5wlh4,
+    .st-emotion-cache-1p6s9q4,
+    svg,
+    .material-icons,
+    [class*="material-icons"],
+    [class*="icon"] {
+        font-family: 'Material Icons', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    }
+
+    /* ============================
+       GENERAL PAGE FONT (safe)
+       ============================ */
+    .stApp, body, p, span, div, label, input, textarea, button,
+    h1, h2, h3, h4, h5, h6,
+    .stMarkdown, .stText, .stAlert, .stButton,
+    .stChatMessage, .stSelectbox, .stTextInput, .stNumberInput,
+    .stCheckbox, .stExpander, .stDataFrame, .stTabs, .stSidebar,
+    .metric-label, .metric-value {
+        font-family: 'Inter', 'Vazir', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* ============================
+       PERSIAN TEXT ONLY
+       ============================ */
+    [lang="fa"],
+    .persian-text,
+    *[lang="fa"] *,
+    *:lang("fa") {
+        font-family: 'Vazir', 'Inter', sans-serif !important;
+    }
+
+    /* ============================
+       OPTIONAL RTL SUPPORT
+       ============================ */
+    [dir="rtl"] {
+        direction: rtl;
+        text-align: right;
+    }
+</style>
+""", unsafe_allow_html=True)
 if not hasattr(FeatureCategory, "BONE_MINERAL"):
     FeatureCategory.BONE_MINERAL = "Bone & Mineral Panel"
 
