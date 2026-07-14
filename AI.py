@@ -12,9 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class BloodLabChatbot:
-    """دستیار هوشمند آزمایش خون – نسخهٔ نهایی و بدون باگ"""
 
-    # ----------------------------------------------------------------
     SYSTEM_INSTRUCTION = """You are **BloodLab AI Assistant**, a specialized medical AI that ONLY answers questions related to blood tests, laboratory values, disease predictions, clinical findings, medical terminology, and recommendations based on the patient's laboratory report.
 
 **Rules you must follow strictly:**
@@ -30,37 +28,26 @@ class BloodLabChatbot:
 - Never provide emergency medical advice. Never tell the patient to ignore symptoms. If symptoms suggest an emergency, recommend immediate medical evaluation."""
 
     MAX_QUESTIONS = 15
-    KEEP_LAST_MESSAGES = 8          # ۴ تبادل آخر
-    MAX_NORMAL_VALUES = 3           # حداکثر مقادیر طبیعی در Context
+    KEEP_LAST_MESSAGES = 8
+    MAX_NORMAL_VALUES = 3
 
-    # ----------------------------------------------------------------
-    def __init__(self, api_key: str | None = None, model: str = "gemini-2.5-flash"):
+    def __init__(self, api_key=None, model="gemini-2.5-flash"):
         if api_key is None:
             try:
-                # اولویت اول: Streamlit Secrets
-                api_key = st.secrets.get("GEMINI_API_KEY")
+                api_key = st.secrets["GEMINI_API_KEY"]
             except (FileNotFoundError, KeyError, ImportError):
-                # اگر Streamlit نبود یا secrets تعریف نشده بود، از .env بخوان
-                from dotenv import load_dotenv
-                load_dotenv()
                 api_key = os.getenv("GEMINI_API_KEY")
-
         if not api_key:
-            raise ValueError(
-                "GEMINI_API_KEY is missing. Set it in .streamlit/secrets.toml or .env file."
-            )
-
+            raise ValueError("GEMINI_API_KEY is missing. Set it in .streamlit/secrets.toml or .env file.")
         self.client = genai.Client(api_key=api_key)
         self.model = model
-        self.patient_context: str | None = None
-        self.history: list[dict] = []        # فقط گفتگوی واقعی (بدون Context و Summary)
-        self.question_count: int = 0
+        self.patient_context = None
+        self.history = []
+        self.question_count = 0
 
-    # ----------------------------------------------------------------
     def build_and_set_context(self, patient_prof, clean_inputs, derived,
                               active_diagnoses, risk_predictions,
                               feature_registry, profile_keys):
-        """ساخت Context سبک: فقط غیرطبیعی‌ها + ۳ نرمال کلیدی"""
         gender = "Male" if patient_prof.get("Sex") == 1 else "Female"
         age = patient_prof.get("Age", "N/A")
         bmi = derived.get("BMI", "N/A")
@@ -117,7 +104,6 @@ class BloodLabChatbot:
             lines.append(f"### KEY NORMAL VALUES (showing first {self.MAX_NORMAL_VALUES})")
             lines.extend(normal_vals[:self.MAX_NORMAL_VALUES])
 
-        # Derived metrics مهم
         important_derived = {"eGFR", "HOMA_IR", "ACR", "BMI", "Transferrin_Sat", "Non_HDL", "VLDL"}
         lines.append("\n## Derived Metrics")
         for dk, dv in derived.items():
@@ -126,7 +112,6 @@ class BloodLabChatbot:
                 unit = fdata.get("unit", "")
                 lines.append(f"- {dk}: {dv} {unit}")
 
-        # Guideline-based findings
         compat = [d for d in active_diagnoses if d.get("status") == "Present" or "Compatible" in str(d.get("evidence"))]
         if compat:
             lines.append("\n## Guideline-Based Findings")
@@ -134,7 +119,6 @@ class BloodLabChatbot:
                 ev = "; ".join(d.get("evidence", [])[:2])
                 lines.append(f"- {d['nameEn']} (ICD-10 {d['icd10']}) — {ev}")
 
-        # Risk predictions (مرتب نزولی)
         risks = [r for r in risk_predictions if r.get("status") == "Evaluated"]
         if risks:
             risks.sort(key=lambda r: r.get("probability", 0), reverse=True)
@@ -145,12 +129,9 @@ class BloodLabChatbot:
 
         self.patient_context = "\n".join(lines)
 
-    # ----------------------------------------------------------------
-    def generate_initial_summary(self) -> str:
-        """خلاصهٔ اولیه (بدون ذخیره در history)"""
+    def generate_initial_summary(self):
         if not self.patient_context:
-            raise ValueError("Patient context has not been set. Call build_and_set_context() first.")
-
+            raise ValueError("Patient context has not been set.")
         prompt = (
             "Please provide a brief, friendly summary of my laboratory results, "
             "highlighting the most important abnormal findings, compatible guideline-based "
@@ -172,34 +153,21 @@ class BloodLabChatbot:
             logger.warning(f"generate_initial_summary failed: {e}")
             return "I'm sorry, I couldn't generate the summary. Please check your API key and try again."
 
-    # ----------------------------------------------------------------
-    def chat(self, user_message: str) -> str:
-        """پاسخ به سوال کاربر – Context همیشه به‌عنوان اولین Content ارسال می‌شود"""
+    def chat(self, user_message):
         if self.question_count >= self.MAX_QUESTIONS:
-            return (
-                "You have reached the maximum number of questions for this session. "
-                "Please consult your physician for further information."
-            )
+            return "You have reached the maximum number of questions for this session. Please consult your physician for further information."
 
         self.question_count += 1
 
-        # ساخت لیست Content‌ها با ترتیب: Context → History → Current Question
         contents = []
-
-        # ۱. Context بیمار (همیشه اول)
         if self.patient_context:
-            contents.append(types.Content(
-                role="user",
-                parts=[types.Part(text=self.patient_context)]
-            ))
+            contents.append(types.Content(role="user", parts=[types.Part(text=self.patient_context)]))
 
-        # ۲. تاریخچه واقعی (آخرین ۸ پیام)
         recent = self.history[-self.KEEP_LAST_MESSAGES:] if self.history else []
         for msg in recent:
             role = "user" if msg["role"] == "user" else "model"
             contents.append(types.Content(role=role, parts=[types.Part(text=msg["content"])]))
 
-        # ۳. سوال جاری
         contents.append(types.Content(role="user", parts=[types.Part(text=user_message)]))
 
         try:
@@ -207,7 +175,7 @@ class BloodLabChatbot:
                 model=self.model,
                 contents=contents,
                 config=types.GenerateContentConfig(
-                    system_instruction=self.SYSTEM_INSTRUCTION,   # فقط قوانین، بدون Context
+                    system_instruction=self.SYSTEM_INSTRUCTION,
                     temperature=0.1,
                     max_output_tokens=600
                 )
@@ -217,15 +185,11 @@ class BloodLabChatbot:
             logger.warning(f"chat failed: {e}")
             reply = "I'm having trouble connecting to the AI service. Please try again later."
 
-        # به‌روزرسانی تاریخچه (بدون Context و Summary)
         self.history.append({"role": "user", "content": user_message})
         self.history.append({"role": "assistant", "content": reply})
-
         return reply
 
-    # ----------------------------------------------------------------
     def reset(self):
-        """بازنشانی کامل"""
         self.history.clear()
         self.question_count = 0
         self.patient_context = None
