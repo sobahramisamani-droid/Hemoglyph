@@ -4,6 +4,7 @@ import streamlit as st
 import os
 import json
 import pandas as pd
+import groq
 from clinical_data import FEATURE_REGISTRY, FeatureCategory
 from calculators import compute_all_derived
 from interpretation import interpret_lab_data
@@ -279,6 +280,9 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# ==========================================
+# STEP 1 – PATIENT PROFILE
+# ==========================================
 if step == 1:
     st.markdown("### 👤 Step 1: Clinical Profile & Demographics")
     st.markdown("Enter basic patient parameters, vitals, lifestyle habits, and hereditary history.")
@@ -858,15 +862,16 @@ elif step == 4:
 
     with tab4:
         st.markdown("#### 🧠 Expert AI Clinical Consultation")
-        st.markdown("Generate a comprehensive clinical summary powered by Gemini AI.")
+        st.markdown("Generate a comprehensive clinical summary powered by Groq AI.")
         def generate_ai_interpretation(patient_info, inputs, derived, diagnoses, risks):
-            api_key = os.environ.get("GEMINI_API_KEY")
+            api_key = os.environ.get("GROQ_API_KEY")
             if not api_key:
-                return "Gemini API key not configured. Set your API key in Settings > Secrets."
+                try:
+                    api_key = st.secrets["GROQ_API_KEY"]
+                except (FileNotFoundError, KeyError):
+                    return "Groq API key not configured. Set your API key in Settings > Secrets."
             try:
-                from google import genai
-                from google.genai import types
-                client = genai.Client(api_key=api_key)
+                client = groq.Client(api_key=api_key)
                 prompt = f"""
 You are an advanced, double‑board‑certified Clinical Laboratory Director and AI Consulting Physician.
 Interpret the following lab results and compile a highly structured, objective medical consult report in English.
@@ -901,19 +906,22 @@ Provide a beautiful clinical report including:
 
 Maintain an authoritative, precise, yet compassionate professional medical tone.
 """
-                response = client.models.generate_content(
-                    model="gemini-2.0-flash-lite",
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        temperature=0.2,
-                        system_instruction="You are a board‑certified clinical laboratory informatics and medical consulting system."
-                    )
+                messages = [
+                    {"role": "system", "content": "You are a board‑certified clinical laboratory informatics and medical consulting system."},
+                    {"role": "user", "content": prompt}
+                ]
+                response = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=messages,
+                    temperature=0.2,
+                    max_tokens=800
                 )
-                return response.text
+                return response.choices[0].message.content
             except Exception as e:
                 return f"Failed to generate AI interpretation: {str(e)}"
+
         if st.button("🧠 Generate Expert AI Consultation Report", type="primary", use_container_width=True):
-            with st.spinner("Analyzing laboratory panels and risk metrics via Gemini AI..."):
+            with st.spinner("Analyzing laboratory panels and risk metrics via Groq AI..."):
                 ai_report = generate_ai_interpretation(patient_prof, clean_inputs, derived_markers, active_diagnoses, risk_predictions)
                 st.markdown("#### 📋 Expert Medical Consult Report")
                 st.markdown(ai_report)
