@@ -98,6 +98,152 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ------------------------------------------------------------
+# Translation dictionary
+# ------------------------------------------------------------
+TRANSLATIONS = {
+    "en": {
+        "title": "🧬 Laboratory AI Assistant",
+        "subtitle": "##### Full‑Scope Guideline‑Based Lab Interpretation & 2‑Year Clinical Risk Forecasting",
+        "presets_heading": "##### 🚀 Quick Patient Presets",
+        "workflow_heading": "📋 Workflow Overview",
+        "step_label": "**Step {step} of 4**",
+        "step1_title": "### 👤 Step 1: Clinical Profile & Demographics",
+        "step1_desc": "Enter basic patient parameters, vitals, lifestyle habits, and hereditary history.",
+        "step2_title": "### 🧪 Step 2: Select Lab Panels",
+        "step2_desc": "Choose the biomarker groups to evaluate. Only the selected panels will appear in the next step.",
+        "step3_title": "### 📋 Step 3: Enter Biomarker Values",
+        "step3_desc": "Provide raw laboratory findings for the selected panels. Values are evaluated against dynamic, sex‑specific reference ranges.",
+        "step4_title": "### 📊 Step 4: Diagnostics & AI Consultation",
+        "step4_desc": "Review the guideline‑driven and AI‑powered evaluation of the patient's comprehensive diagnostic profile.",
+        "summary_table_heading": "### 📋 Clinical & Lab Parameters Summary",
+        "summary_table_expander": "📊 Expand to View Summary Table",
+        "derived_metrics_heading": "#### 🔬 Derived Clinical Metrics",
+        "disease_heading": "#### 🩺 Guideline‑Based Disease Interpretation",
+        "compatible_count": "🚨 Compatible",
+        "no_evidence_count": "🟢 No Evidence",
+        "incomplete_count": "⚠️ Incomplete",
+        "no_data_count": "⚪ No Input Data",
+        "filter_label": "Filter by Status:",
+        "sort_label": "Sort by:",
+        "show_all": "Show All",
+        "compatible_only": "Compatible Only",
+        "incomplete_only": "Incomplete Only",
+        "no_data_only": "No Input Data",
+        "default_sort": "Default (by Panel)",
+        "compatible_first_sort": "Compatible First",
+        "az_sort": "A‑Z by Disease Name",
+        "risk_heading": "#### 🔮 2‑Year Disease Risk Prediction Scores",
+        "guideline_heading": "#### 📘 Comprehensive Disease Guideline Browser",
+        "expert_heading": "#### 🧠 Expert AI Clinical Consultation",
+        "chat_heading": "#### 💬 BloodLab AI Assistant",
+        "chat_desc": "Ask questions about your laboratory results, predicted conditions, and clinical findings. Only questions related to your blood analysis will be answered.",
+        "chat_placeholder": "Ask about your lab results...",
+        "chat_summary_info": "📋 **Your Laboratory Summary**",
+        "previous_btn": "⬅️ Previous Step",
+        "next_btn1": "Proceed to Panels ➡️",
+        "next_btn2": "Proceed to Biomarkers ➡️",
+        "next_btn3": "🚀 Run Diagnostic Analysis",
+        "sidebar_reset": "##### ⚙️ Reset Panel Data",
+        "clear_btn": "🧹 Clear All Inputs",
+        "clear_success": "All patient and lab values cleared.",
+        "reset_btn": "✨ Reset Selected Panel Values to Midpoint/Normal",
+        "reset_success": "All active parameters reset to clinical normal references.",
+        "thinking": "Thinking...",
+        "spinner_summary": "Preparing your laboratory summary...",
+        "spinner_expert": "Analyzing laboratory panels and risk metrics via Groq AI...",
+        "generate_expert_btn": "🧠 Generate Expert AI Consultation Report",
+        "expert_report_heading": "#### 📋 Expert Medical Consult Report",
+        "summary_language": "en",
+    },
+    "fa": {
+        "title": "🧬 دستیار هوشمند آزمایشگاه",
+        "subtitle": "##### تحلیل جامع نتایج آزمایش بر اساس گایدلاین‌های بالینی و پیش‌بینی ریسک ۲ ساله",
+        "presets_heading": "##### 🚀 پروفایل‌های آماده بیمار",
+        "workflow_heading": "📋 روند کار",
+        "step_label": "**مرحله {step} از ۴**",
+        "step1_title": "### 👤 مرحله ۱: مشخصات بالینی و جمعیت‌شناختی",
+        "step1_desc": "اطلاعات پایه بیمار، علائم حیاتی، عادات زندگی و سابقه خانوادگی را وارد کنید.",
+        "step2_title": "### 🧪 مرحله ۲: انتخاب پنل‌های آزمایشگاهی",
+        "step2_desc": "گروه‌های بیومارکر مورد نظر خود را برای ارزیابی انتخاب کنید. فقط پنل‌های انتخاب‌شده در مرحله بعد نمایش داده خواهند شد.",
+        "step3_title": "### 📋 مرحله ۳: ورود مقادیر آزمایشگاهی",
+        "step3_desc": "نتایج خام آزمایشگاهی را برای پنل‌های انتخاب‌شده وارد کنید. مقادیر بر اساس محدوده مرجع وابسته به جنسیت ارزیابی می‌شوند.",
+        "step4_title": "### 📊 مرحله ۴: تشخیص و مشاوره هوش مصنوعی",
+        "step4_desc": "ارزیابی جامع پروفایل تشخیصی بیمار بر اساس گایدلاین‌ها و هوش مصنوعی را مرور کنید.",
+        "summary_table_heading": "### 📋 خلاصه شاخص‌های بالینی و آزمایشگاهی",
+        "summary_table_expander": "📊 باز کردن جدول خلاصه",
+        "derived_metrics_heading": "#### 🔬 شاخص‌های محاسباتی",
+        "disease_heading": "#### 🩺 تفسیر بیماری‌ها بر اساس گایدلاین",
+        "compatible_count": "🚨 سازگار",
+        "no_evidence_count": "🟢 فاقد شواهد",
+        "incomplete_count": "⚠️ ناقص",
+        "no_data_count": "⚪ بدون داده ورودی",
+        "filter_label": "فیلتر بر اساس وضعیت:",
+        "sort_label": "مرتب‌سازی بر اساس:",
+        "show_all": "نمایش همه",
+        "compatible_only": "فقط موارد سازگار",
+        "incomplete_only": "فقط موارد ناقص",
+        "no_data_only": "فقط موارد بدون داده",
+        "default_sort": "پیش‌فرض (بر اساس پنل)",
+        "compatible_first_sort": "ابتدا موارد سازگار",
+        "az_sort": "الفبایی (انگلیسی)",
+        "risk_heading": "#### 🔮 پیش‌بینی ریسک ۲ ساله",
+        "guideline_heading": "#### 📘 مرورگر گایدلاین‌های تشخیصی",
+        "expert_heading": "#### 🧠 مشاوره تخصصی هوش مصنوعی",
+        "chat_heading": "#### 💬 دستیار هوشمند BloodLab",
+        "chat_desc": "سوالات خود را درباره نتایج آزمایش، شرایط پیش‌بینی‌شده و یافته‌های بالینی بپرسید. فقط سوالات مرتبط با تحلیل خون پاسخ داده می‌شود.",
+        "chat_placeholder": "سوال خود را درباره نتایج آزمایش بپرسید...",
+        "chat_summary_info": "📋 **خلاصه آزمایش شما**",
+        "previous_btn": "⬅️ مرحله قبل",
+        "next_btn1": "مرحله بعد: پنل‌ها ➡️",
+        "next_btn2": "مرحله بعد: بیومارکرها ➡️",
+        "next_btn3": "🚀 اجرای تحلیل تشخیصی",
+        "sidebar_reset": "##### ⚙️ بازنشانی داده‌ها",
+        "clear_btn": "🧹 پاک کردن همه ورودی‌ها",
+        "clear_success": "تمام اطلاعات بیمار و مقادیر آزمایشگاهی پاک شد.",
+        "reset_btn": "✨ بازنشانی مقادیر پنل به حالت نرمال",
+        "reset_success": "تمام پارامترهای فعال به مقادیر نرمال بازنشانی شدند.",
+        "thinking": "در حال تفکر...",
+        "spinner_summary": "در حال آماده‌سازی خلاصه آزمایش شما...",
+        "spinner_expert": "در حال تحلیل پنل‌های آزمایشگاهی و معیارهای ریسک توسط Groq AI...",
+        "generate_expert_btn": "🧠 تولید گزارش مشاوره تخصصی",
+        "expert_report_heading": "#### 📋 گزارش مشاوره تخصصی",
+        "summary_language": "fa",
+    }
+}
+
+# ------------------------------------------------------------
+# Session state & language setup
+# ------------------------------------------------------------
+if "lang" not in st.session_state:
+    st.session_state.lang = "en"
+if "t" not in st.session_state:
+    st.session_state.t = TRANSLATIONS[st.session_state.lang]
+t = st.session_state.t
+
+if "patient_inputs" not in st.session_state:
+    st.session_state.patient_inputs = {k: None for k in FEATURE_REGISTRY.keys()}
+    st.session_state.patient_inputs["Age"] = 35.0
+    st.session_state.patient_inputs["Sex"] = "Male"
+    st.session_state.patient_inputs["Weight"] = 70.0
+    st.session_state.patient_inputs["Height"] = 175.0
+    st.session_state.patient_inputs["Smoking"] = "No"
+    st.session_state.patient_inputs["PhysicalActivity"] = "Light Activity"
+    st.session_state.patient_inputs["FamilyHistory_DM"] = "No"
+    st.session_state.patient_inputs["FamilyHistory_CAD"] = "No"
+    st.session_state.patient_inputs["FamilyHistory_HTN"] = "No"
+    st.session_state.patient_inputs["FamilyHistory_Obesity"] = "No"
+
+if "step" not in st.session_state:
+    st.session_state.step = 1
+
+if "selected_panels" not in st.session_state:
+    st.session_state.selected_panels = [
+        "CBC And Differential", "Iron, Vitamin, and Nutrition Panels",
+        "Thyroid and Endocrine Panels", "Diabetes and Metabolic Panels",
+        "Lipid Panels", "Renal Function and Urine Protein Panels"
+    ]
+
 PANELS_TO_CATEGORIES = {
     "CBC And Differential": [FeatureCategory.CBC],
     "Iron, Vitamin, and Nutrition Panels": [FeatureCategory.IRON, FeatureCategory.VITAMIN, FeatureCategory.NUTRITION, FeatureCategory.MICRONUTRIENT],
@@ -173,34 +319,15 @@ PRESETS = {
     }
 }
 
-if "patient_inputs" not in st.session_state:
-    st.session_state.patient_inputs = {k: None for k in FEATURE_REGISTRY.keys()}
-    st.session_state.patient_inputs["Age"] = 35.0
-    st.session_state.patient_inputs["Sex"] = "Male"
-    st.session_state.patient_inputs["Weight"] = 70.0
-    st.session_state.patient_inputs["Height"] = 175.0
-    st.session_state.patient_inputs["Smoking"] = "No"
-    st.session_state.patient_inputs["PhysicalActivity"] = "Light Activity"
-    st.session_state.patient_inputs["FamilyHistory_DM"] = "No"
-    st.session_state.patient_inputs["FamilyHistory_CAD"] = "No"
-    st.session_state.patient_inputs["FamilyHistory_HTN"] = "No"
-    st.session_state.patient_inputs["FamilyHistory_Obesity"] = "No"
-
-if "step" not in st.session_state:
-    st.session_state.step = 1
-
-if "selected_panels" not in st.session_state:
-    st.session_state.selected_panels = [
-        "CBC And Differential", "Iron, Vitamin, and Nutrition Panels",
-        "Thyroid and Endocrine Panels", "Diabetes and Metabolic Panels",
-        "Lipid Panels", "Renal Function and Urine Protein Panels"
-    ]
-
-st.title("🧬 Laboratory AI Assistant")
-st.markdown("##### Full‑Scope Guideline‑Based Lab Interpretation & 2‑Year Clinical Risk Forecasting")
+# ------------------------------------------------------------
+# Header
+# ------------------------------------------------------------
+st.title(t["title"])
+st.markdown(t["subtitle"])
 st.markdown("---")
 
-st.markdown("##### 🚀 Quick Patient Presets")
+# Quick presets
+st.markdown(t["presets_heading"])
 cols = st.columns(len(PRESETS))
 for i, (name, preset_vals) in enumerate(PRESETS.items()):
     with cols[i]:
@@ -222,9 +349,20 @@ for i, (name, preset_vals) in enumerate(PRESETS.items()):
 
 st.markdown("---")
 
+# ------------------------------------------------------------
+# Sidebar
+# ------------------------------------------------------------
 with st.sidebar:
-    st.header("📋 Workflow Overview")
-    st.markdown(f"**Step {st.session_state.step} of 4**")
+    # Language selector
+    lang = st.selectbox("🌐 Language / زبان", ["en", "fa"], index=0 if st.session_state.lang == "en" else 1, key="lang_select")
+    if lang != st.session_state.lang:
+        st.session_state.lang = lang
+        st.session_state.t = TRANSLATIONS[lang]
+        t = st.session_state.t
+        st.rerun()
+
+    st.header(t["workflow_heading"])
+    st.markdown(t["step_label"].format(step=st.session_state.step))
     steps_list = [
         "1. Clinical Profile & Demographics",
         "2. Select Active Lab Panels",
@@ -239,13 +377,14 @@ with st.sidebar:
         else:
             st.markdown(f"⚪ {s_lbl}")
     st.markdown("---")
-    st.markdown("##### ⚙️ Reset Panel Data")
-    if st.button("🧹 Clear All Inputs", use_container_width=True):
+    st.markdown(t["sidebar_reset"])
+    if st.button(t["clear_btn"], use_container_width=True):
         st.session_state.patient_inputs = {k: None for k in FEATURE_REGISTRY.keys()}
         st.session_state.step = 1
-        st.success("All patient and lab values cleared.")
+        st.success(t["clear_success"])
         st.rerun()
 
+# Progress bar
 step = st.session_state.step
 
 def get_step_style(step_num):
@@ -284,8 +423,8 @@ st.markdown(f"""
 # STEP 1 – PATIENT PROFILE
 # ==========================================
 if step == 1:
-    st.markdown("### 👤 Step 1: Clinical Profile & Demographics")
-    st.markdown("Enter basic patient parameters, vitals, lifestyle habits, and hereditary history.")
+    st.markdown(t["step1_title"])
+    st.markdown(t["step1_desc"])
     with st.container(border=True):
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -328,9 +467,12 @@ if step == 1:
             fh_ob_checked = st.checkbox("Family History of Obesity", value=(st.session_state.patient_inputs.get("FamilyHistory_Obesity") == "Yes"), key="input_fh_ob")
             st.session_state.patient_inputs["FamilyHistory_Obesity"] = "Yes" if fh_ob_checked else "No"
 
+# ==========================================
+# STEP 2 – SELECT PANELS
+# ==========================================
 elif step == 2:
-    st.markdown("### 🧪 Step 2: Select Lab Panels")
-    st.markdown("Choose the biomarker groups to evaluate. Only the selected panels will appear in the next step.")
+    st.markdown(t["step2_title"])
+    st.markdown(t["step2_desc"])
     with st.container(border=True):
         st.markdown("##### 📁 Available Panels")
         selected = []
@@ -345,9 +487,12 @@ elif step == 2:
     if not st.session_state.selected_panels:
         st.warning("⚠️ Please select at least one laboratory panel to proceed.")
 
+# ==========================================
+# STEP 3 – BIOMARKER INPUT
+# ==========================================
 elif step == 3:
-    st.markdown("### 📋 Step 3: Enter Biomarker Values")
-    st.markdown("Provide raw laboratory findings for the selected panels. Values are evaluated against dynamic, sex‑specific reference ranges.")
+    st.markdown(t["step3_title"])
+    st.markdown(t["step3_desc"])
     gender_lower = st.session_state.patient_inputs["Sex"].lower()
     for panel_name in st.session_state.selected_panels:
         categories = PANELS_TO_CATEGORIES[panel_name]
@@ -366,7 +511,7 @@ elif step == 3:
                     st.session_state.patient_inputs[f_key] = 0.0
 
     st.markdown("##### 💡 Efficiency Helpers")
-    if st.button("✨ Reset Selected Panel Values to Midpoint/Normal", use_container_width=True):
+    if st.button(t["reset_btn"], use_container_width=True):
         for panel_name in st.session_state.selected_panels:
             categories = PANELS_TO_CATEGORIES[panel_name]
             filtered = [k for k, item in FEATURE_REGISTRY.items()
@@ -381,7 +526,7 @@ elif step == 3:
                     st.session_state.patient_inputs[f_key] = float(sum(matched_ref["range"]) / 2.0)
                 else:
                     st.session_state.patient_inputs[f_key] = 0.0
-        st.success("All active parameters reset to clinical normal references.")
+        st.success(t["reset_success"])
         st.rerun()
 
     st.markdown("---")
@@ -457,9 +602,12 @@ elif step == 3:
                             st.session_state.patient_inputs[f_key] = val_input
                 st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
+# ==========================================
+# STEP 4 – ANALYSIS & RESULTS
+# ==========================================
 elif step == 4:
-    st.markdown("### 📊 Step 4: Diagnostics & AI Consultation")
-    st.markdown("Review the guideline‑driven and AI‑powered evaluation of the patient's comprehensive diagnostic profile.")
+    st.markdown(t["step4_title"])
+    st.markdown(t["step4_desc"])
     clean_inputs = {k: v for k, v in st.session_state.patient_inputs.items() if v is not None}
     patient_prof = {
         "Age": clean_inputs.get("Age", 35.0),
@@ -487,11 +635,11 @@ elif step == 4:
     )
 
     if "initial_summary" not in st.session_state:
-        with st.spinner("Preparing your laboratory summary..."):
+        with st.spinner(t["spinner_summary"]):
             st.session_state.initial_summary = chatbot.generate_initial_summary()
 
-    st.markdown("### 📋 Clinical & Lab Parameters Summary")
-    with st.expander("📊 Expand to View Summary Table", expanded=True):
+    st.markdown(t["summary_table_heading"])
+    with st.expander(t["summary_table_expander"], expanded=True):
         summary_rows = []
         gender_lower = st.session_state.patient_inputs["Sex"].lower()
         profile_labels = {
@@ -606,7 +754,7 @@ elif step == 4:
     ])
 
     with tab1:
-        st.markdown("#### 🔬 Derived Clinical Metrics")
+        st.markdown(t["derived_metrics_heading"])
         if derived_markers:
             d_cols = st.columns(min(len(derived_markers), 4))
             for idx, (dk, dv) in enumerate(derived_markers.items()):
@@ -621,7 +769,7 @@ elif step == 4:
         else:
             st.info("No derived metrics calculated yet.")
 
-        st.markdown("#### 🩺 Guideline‑Based Disease Interpretation")
+        st.markdown(t["disease_heading"])
         active_panel_diseases = []
         for panel_name in st.session_state.selected_panels:
             active_panel_diseases.extend([d for d in DISEASE_GUIDELINES if GUIDELINE_CATEGORY_TO_PANEL.get(d["category"]) == panel_name])
@@ -648,23 +796,23 @@ elif step == 4:
         m_col1, m_col2, m_col3, m_col4 = st.columns(4)
         with m_col1:
             st.markdown(f"""<div style="background-color:#fef2f2;border:1px solid #fecaca;padding:12px;border-radius:8px;text-align:center;margin-bottom:15px;border-top:4px solid #ef4444;">
-                <div style="font-size:11px;font-weight:bold;color:#991b1b;">🚨 Compatible</div><div style="font-size:24px;font-weight:bold;color:#ef4444;">{compat}</div></div>""", unsafe_allow_html=True)
+                <div style="font-size:11px;font-weight:bold;color:#991b1b;">{t["compatible_count"]}</div><div style="font-size:24px;font-weight:bold;color:#ef4444;">{compat}</div></div>""", unsafe_allow_html=True)
         with m_col2:
             st.markdown(f"""<div style="background-color:#f0fdf4;border:1px solid #bbf7d0;padding:12px;border-radius:8px;text-align:center;margin-bottom:15px;border-top:4px solid #10b981;">
-                <div style="font-size:11px;font-weight:bold;color:#166534;">🟢 No Evidence</div><div style="font-size:24px;font-weight:bold;color:#10b981;">{not_compat}</div></div>""", unsafe_allow_html=True)
+                <div style="font-size:11px;font-weight:bold;color:#166534;">{t["no_evidence_count"]}</div><div style="font-size:24px;font-weight:bold;color:#10b981;">{not_compat}</div></div>""", unsafe_allow_html=True)
         with m_col3:
             st.markdown(f"""<div style="background-color:#fffbeb;border:1px solid #fde68a;padding:12px;border-radius:8px;text-align:center;margin-bottom:15px;border-top:4px solid #f59e0b;">
-                <div style="font-size:10px;font-weight:bold;color:#92400e;">⚠️ Incomplete</div><div style="font-size:24px;font-weight:bold;color:#f59e0b;">{incomp}</div></div>""", unsafe_allow_html=True)
+                <div style="font-size:10px;font-weight:bold;color:#92400e;">{t["incomplete_count"]}</div><div style="font-size:24px;font-weight:bold;color:#f59e0b;">{incomp}</div></div>""", unsafe_allow_html=True)
         with m_col4:
             st.markdown(f"""<div style="background-color:#f8fafc;border:1px solid #e2e8f0;padding:12px;border-radius:8px;text-align:center;margin-bottom:15px;border-top:4px solid #64748b;">
-                <div style="font-size:11px;font-weight:bold;color:#475569;">⚪ No Input Data</div><div style="font-size:24px;font-weight:bold;color:#64748b;">{no_dat}</div></div>""", unsafe_allow_html=True)
+                <div style="font-size:11px;font-weight:bold;color:#475569;">{t["no_data_count"]}</div><div style="font-size:24px;font-weight:bold;color:#64748b;">{no_dat}</div></div>""", unsafe_allow_html=True)
 
         st.markdown("---")
         col_sort, col_filter = st.columns(2)
         with col_filter:
-            filter_opt = st.selectbox("Filter by Status:", ["Show All", "Compatible Only", "Incomplete Only", "No Input Data"], key="filter_opt")
+            filter_opt = st.selectbox(t["filter_label"], [t["show_all"], t["compatible_only"], t["incomplete_only"], t["no_data_only"]], key="filter_opt")
         with col_sort:
-            sort_opt = st.selectbox("Sort by:", ["Default (by Panel)", "Compatible First", "A‑Z by Disease Name"], key="sort_opt")
+            sort_opt = st.selectbox(t["sort_label"], [t["default_sort"], t["compatible_first_sort"], t["az_sort"]], key="sort_opt")
 
         evaluated = []
         for d in unique:
@@ -703,19 +851,19 @@ elif step == 4:
                 "evidence": evidence_list
             })
 
-        if filter_opt == "Compatible Only":
+        if filter_opt == t["compatible_only"]:
             evaluated = [x for x in evaluated if x["status_label"] == "Compatible"]
-        elif filter_opt == "Incomplete Only":
+        elif filter_opt == t["incomplete_only"]:
             evaluated = [x for x in evaluated if x["status_label"] == "Incomplete"]
-        elif filter_opt == "No Input Data":
+        elif filter_opt == t["no_data_only"]:
             evaluated = [x for x in evaluated if x["status_label"] == "No Data"]
 
-        if sort_opt == "Compatible First":
+        if sort_opt == t["compatible_first_sort"]:
             evaluated.sort(key=lambda x: x["order"])
-        elif sort_opt == "A‑Z by Disease Name":
+        elif sort_opt == t["az_sort"]:
             evaluated.sort(key=lambda x: x["disease"]["name"].lower())
 
-        if sort_opt == "Default (by Panel)":
+        if sort_opt == t["default_sort"]:
             for panel_name in st.session_state.selected_panels:
                 panel_items = [x for x in evaluated if GUIDELINE_CATEGORY_TO_PANEL.get(x["disease"]["category"]) == panel_name]
                 if panel_items:
@@ -785,7 +933,7 @@ elif step == 4:
                 st.info("No diseases match the selected filter.")
 
     with tab2:
-        st.markdown("#### 🔮 2‑Year Disease Risk Prediction Scores")
+        st.markdown(t["risk_heading"])
         already = [r for r in risk_predictions if r.get("status") == "AlreadyDiagnosed"]
         evaluated_risks = [r for r in risk_predictions if r.get("status") == "Evaluated"]
         insufficient = [r for r in risk_predictions if r.get("status") == "Insufficient Data"]
@@ -833,7 +981,7 @@ elif step == 4:
                 </div>""", unsafe_allow_html=True)
 
     with tab3:
-        st.markdown("#### 📘 Comprehensive Disease Guideline Browser")
+        st.markdown(t["guideline_heading"])
         st.markdown("Search and filter the complete clinical database of 100+ diagnostic guidelines.")
         col1, col2 = st.columns([1,1])
         with col1:
@@ -861,8 +1009,7 @@ elif step == 4:
             st.info("No matching guidelines found.")
 
     with tab4:
-        st.markdown("#### 🧠 Expert AI Clinical Consultation")
-        st.markdown("Generate a comprehensive clinical summary powered by Groq AI.")
+        st.markdown(t["expert_heading"])
         def generate_ai_interpretation(patient_info, inputs, derived, diagnoses, risks):
             api_key = os.environ.get("GROQ_API_KEY")
             if not api_key:
@@ -874,7 +1021,7 @@ elif step == 4:
                 client = groq.Client(api_key=api_key)
                 prompt = f"""
 You are an advanced, double‑board‑certified Clinical Laboratory Director and AI Consulting Physician.
-Interpret the following lab results and compile a highly structured, objective medical consult report in English.
+Interpret the following lab results and compile a highly structured, objective medical consult report in {"English" if st.session_state.lang == "en" else "Persian"}.
 
 ### Patient Profile:
 - Age: {patient_info.get('Age')} years
@@ -907,11 +1054,11 @@ Provide a beautiful clinical report including:
 Maintain an authoritative, precise, yet compassionate professional medical tone.
 """
                 messages = [
-                    {"role": "system", "content": "You are a board‑certified clinical laboratory informatics and medical consulting system."},
+                    {"role": "system", "content": "You are a board‑certified clinical laboratory informatics and medical consulting system. Answer in the same language as the user's prompt."},
                     {"role": "user", "content": prompt}
                 ]
                 response = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
+                    model="llama-3.1-8b-instant",
                     messages=messages,
                     temperature=0.2,
                     max_tokens=800
@@ -920,30 +1067,29 @@ Maintain an authoritative, precise, yet compassionate professional medical tone.
             except Exception as e:
                 return f"Failed to generate AI interpretation: {str(e)}"
 
-        if st.button("🧠 Generate Expert AI Consultation Report", type="primary", use_container_width=True):
-            with st.spinner("Analyzing laboratory panels and risk metrics via Groq AI..."):
+        if st.button(t["generate_expert_btn"], type="primary", use_container_width=True):
+            with st.spinner(t["spinner_expert"]):
                 ai_report = generate_ai_interpretation(patient_prof, clean_inputs, derived_markers, active_diagnoses, risk_predictions)
-                st.markdown("#### 📋 Expert Medical Consult Report")
+                st.markdown(t["expert_report_heading"])
                 st.markdown(ai_report)
 
     with tab5:
-        st.markdown("#### 💬 BloodLab AI Assistant")
-        st.markdown("Ask questions about your laboratory results, predicted conditions, and clinical findings. "
-                     "Only questions related to your blood analysis will be answered.")
+        st.markdown(t["chat_heading"])
+        st.markdown(t["chat_desc"])
 
         if "initial_summary" in st.session_state:
-            st.info("📋 **Your Laboratory Summary**")
+            st.info(t["chat_summary_info"])
             st.markdown(st.session_state.initial_summary)
 
         for msg in chatbot.history:
             with st.chat_message(msg["role"]):
                 st.markdown(msg["content"])
 
-        if user_query := st.chat_input("Ask about your lab results..."):
+        if user_query := st.chat_input(t["chat_placeholder"]):
             with st.chat_message("user"):
                 st.markdown(user_query)
             with st.chat_message("assistant"):
-                with st.spinner("Thinking..."):
+                with st.spinner(t["thinking"]):
                     reply = chatbot.chat(user_query)
                 st.markdown(reply)
             st.rerun()
@@ -952,12 +1098,12 @@ st.markdown("<div style='margin-top:30px;'></div>", unsafe_allow_html=True)
 col_prev, _, col_next = st.columns([1.5, 4, 1.5])
 with col_prev:
     if step > 1:
-        if st.button("⬅️ Previous Step", use_container_width=True):
+        if st.button(t["previous_btn"], use_container_width=True):
             st.session_state.step -= 1
             st.rerun()
 with col_next:
     if step < 4:
-        lbl = "Proceed to Panels ➡️" if step == 1 else ("Proceed to Biomarkers ➡️" if step == 2 else "🚀 Run Diagnostic Analysis")
+        lbl = t["next_btn1"] if step == 1 else (t["next_btn2"] if step == 2 else t["next_btn3"])
         if st.button(lbl, use_container_width=True, type="primary"):
             st.session_state.step += 1
             st.rerun()
