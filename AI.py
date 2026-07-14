@@ -137,13 +137,16 @@ class BloodLabChatbot:
             raise ValueError("Patient context has not been set.")
 
         lang = st.session_state.get("lang", "en")
+
         if lang == "fa":
+            language_instruction = "تو یک دستیار پزشکی هستی. لطفاً پاسخ خود را فقط به زبان فارسی بنویس."
             user_prompt = (
                 "لطفاً یک خلاصه مختصر و مفید از نتایج آزمایش من ارائه دهید، "
                 "با برجسته کردن مهمترین یافته‌های غیرطبیعی، بیماری‌های سازگار با گایدلاین‌ها "
                 "و هرگونه پیش‌بینی ریسک ۲ ساله. به زبانی ساده و قابل فهم برای یک فرد غیرپزشکی توضیح دهید."
             )
         else:
+            language_instruction = "You are a medical assistant. Answer in English."
             user_prompt = (
                 "Please provide a brief, friendly summary of my laboratory results, "
                 "highlighting the most important abnormal findings, compatible guideline-based "
@@ -151,8 +154,10 @@ class BloodLabChatbot:
                 "Keep it understandable for a non-medical person."
             )
 
+        system_content = f"{language_instruction}\n\n{self.SYSTEM_INSTRUCTION}\n\n{self.patient_context}"
+
         messages = [
-            {"role": "system", "content": self.SYSTEM_INSTRUCTION + "\n\n" + self.patient_context},
+            {"role": "system", "content": system_content},
             {"role": "user", "content": user_prompt}
         ]
         try:
@@ -165,7 +170,7 @@ class BloodLabChatbot:
             return response.choices[0].message.content
         except Exception as e:
             logger.warning(f"generate_initial_summary failed: {e}")
-            return "I'm sorry, I couldn't generate the summary. Please check your API key and try again."
+            return "I'm sorry, I couldn't generate the summary." if lang == "en" else "متأسفانه نتوانستم خلاصه را تولید کنم."
 
     def chat(self, user_message: str) -> str:
         if self.question_count >= self.MAX_QUESTIONS:
@@ -174,6 +179,12 @@ class BloodLabChatbot:
         self.question_count += 1
 
         messages = [{"role": "system", "content": self.SYSTEM_INSTRUCTION}]
+
+        lang = st.session_state.get("lang", "en")
+        if lang == "fa":
+            messages.append({"role": "system", "content": "از این پس تمام پاسخ‌های خود را فقط به فارسی بنویس."})
+        else:
+            messages.append({"role": "system", "content": "From now on, answer only in English."})
 
         if self.patient_context:
             messages.append({
@@ -197,7 +208,7 @@ class BloodLabChatbot:
             reply = response.choices[0].message.content
         except Exception as e:
             logger.warning(f"chat failed: {e}")
-            reply = "I'm having trouble connecting to the AI service. Please try again later."
+            reply = "I'm having trouble connecting to the AI service." if lang == "en" else "متأسفانه در اتصال به سرویس هوش مصنوعی مشکلی پیش آمد."
 
         self.history.append({"role": "user", "content": user_message})
         self.history.append({"role": "assistant", "content": reply})
