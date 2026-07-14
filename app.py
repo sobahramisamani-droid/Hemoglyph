@@ -902,7 +902,7 @@ Provide a beautiful clinical report including:
 Maintain an authoritative, precise, yet compassionate professional medical tone.
 """
                 response = client.models.generate_content(
-                    model="gemini-3.5-flash",
+                    model="gemini-2.5-flash",
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         temperature=0.2,
