@@ -1,5 +1,3 @@
-# app.py
-
 import streamlit as st
 import os
 import json
@@ -179,10 +177,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-# ------------------------------------------------------------
-# Translation dictionary
-# ------------------------------------------------------------
 TRANSLATIONS = {
     "en": {
         "title": "🧬 Laboratory AI Assistant",
@@ -239,7 +233,7 @@ TRANSLATIONS = {
         "summary_language": "en",
     },
     "fa": {
-        "title": "🧬 دستیار هوشمند آزمایشگاه",
+        "title": "🧬 دستیار هوشمند آزمایشگاهی",
         "subtitle": "##### تحلیل جامع نتایج آزمایش بر اساس گایدلاین‌های بالینی و پیش‌بینی ریسک ۲ ساله",
         "presets_heading": "##### 🚀 پروفایل‌های آماده بیمار",
         "workflow_heading": "📋 روند کار",
@@ -293,10 +287,6 @@ TRANSLATIONS = {
         "summary_language": "fa",
     }
 }
-
-# ------------------------------------------------------------
-# Session state & language setup
-# ------------------------------------------------------------
 if "lang" not in st.session_state:
     st.session_state.lang = "en"
 if "t" not in st.session_state:
@@ -401,9 +391,6 @@ PRESETS = {
     }
 }
 
-# ------------------------------------------------------------
-# Header
-# ------------------------------------------------------------
 st.title(t["title"])
 st.markdown(t["subtitle"])
 st.markdown("---")
@@ -430,10 +417,6 @@ for i, (name, preset_vals) in enumerate(PRESETS.items()):
             st.rerun()
 
 st.markdown("---")
-
-# ------------------------------------------------------------
-# Sidebar
-# ------------------------------------------------------------
 with st.sidebar:
     # Language selector
     lang = st.selectbox("🌐 Language / زبان", ["en", "fa"], index=0 if st.session_state.lang == "en" else 1, key="lang_select")
@@ -465,8 +448,6 @@ with st.sidebar:
         st.session_state.step = 1
         st.success(t["clear_success"])
         st.rerun()
-
-# Progress bar
 step = st.session_state.step
 
 def get_step_style(step_num):
@@ -500,10 +481,6 @@ st.markdown(f"""
     </div>
 </div>
 """, unsafe_allow_html=True)
-
-# ==========================================
-# STEP 1 – PATIENT PROFILE
-# ==========================================
 if step == 1:
     st.markdown(t["step1_title"])
     st.markdown(t["step1_desc"])
@@ -548,10 +525,6 @@ if step == 1:
             st.session_state.patient_inputs["FamilyHistory_HTN"] = "Yes" if fh_htn_checked else "No"
             fh_ob_checked = st.checkbox("Family History of Obesity", value=(st.session_state.patient_inputs.get("FamilyHistory_Obesity") == "Yes"), key="input_fh_ob")
             st.session_state.patient_inputs["FamilyHistory_Obesity"] = "Yes" if fh_ob_checked else "No"
-
-# ==========================================
-# STEP 2 – SELECT PANELS
-# ==========================================
 elif step == 2:
     st.markdown(t["step2_title"])
     st.markdown(t["step2_desc"])
@@ -568,10 +541,6 @@ elif step == 2:
         st.session_state.selected_panels = selected
     if not st.session_state.selected_panels:
         st.warning("⚠️ Please select at least one laboratory panel to proceed.")
-
-# ==========================================
-# STEP 3 – BIOMARKER INPUT
-# ==========================================
 elif step == 3:
     st.markdown(t["step3_title"])
     st.markdown(t["step3_desc"])
@@ -683,10 +652,6 @@ elif step == 3:
                             )
                             st.session_state.patient_inputs[f_key] = val_input
                 st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
-
-# ==========================================
-# STEP 4 – ANALYSIS & RESULTS
-# ==========================================
 elif step == 4:
     st.markdown(t["step4_title"])
     st.markdown(t["step4_desc"])
