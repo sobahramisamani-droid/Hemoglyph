@@ -179,12 +179,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 TRANSLATIONS = {
     "en": {
-        "title": "🧬 Laboratory AI Assistant",
-        "subtitle": "##### Full‑Scope Guideline‑Based Lab Interpretation & 2‑Year Clinical Risk Forecasting",
+        "title": "🧬 hemoglyph",
+        "subtitle": "##### Decoding the Ancient Language of Your Blood",
         "presets_heading": "##### 🚀 Quick Patient Presets",
-        "workflow_heading": "📋 Workflow Overview",
+        "workflow_heading": "📋Steps",
         "step_label": "**Step {step} of 4**",
-        "step1_title": "### 👤 Step 1: Clinical Profile & Demographics",
+        "step1_title": "### 👤 Step 1: Clinical Profile ",
         "step1_desc": "Enter basic patient parameters, vitals, lifestyle habits, and hereditary history.",
         "step2_title": "### 🧪 Step 2: Select Lab Panels",
         "step2_desc": "Choose the biomarker groups to evaluate. Only the selected panels will appear in the next step.",
@@ -233,12 +233,12 @@ TRANSLATIONS = {
         "summary_language": "en",
     },
     "fa": {
-        "title": "🧬 دستیار هوشمند آزمایشگاهی",
-        "subtitle": "##### تحلیل جامع نتایج آزمایش بر اساس گایدلاین‌های بالینی و پیش‌بینی ریسک ۲ ساله",
+        "title": "هموگلیف🧬 ",
+        "subtitle": "##### رمزگشایی از زبان باستانی خون شما",
         "presets_heading": "##### 🚀 پروفایل‌های آماده بیمار",
-        "workflow_heading": "📋 روند کار",
+        "workflow_heading": "📋 مراحل",
         "step_label": "**مرحله {step} از ۴**",
-        "step1_title": "### 👤 مرحله ۱: مشخصات بالینی و جمعیت‌شناختی",
+        "step1_title": "### 👤 مرحله ۱: مشخصات بالینی ",
         "step1_desc": "اطلاعات پایه بیمار، علائم حیاتی، عادات زندگی و سابقه خانوادگی را وارد کنید.",
         "step2_title": "### 🧪 مرحله ۲: انتخاب پنل‌های آزمایشگاهی",
         "step2_desc": "گروه‌های بیومارکر مورد نظر خود را برای ارزیابی انتخاب کنید. فقط پنل‌های انتخاب‌شده در مرحله بعد نمایش داده خواهند شد.",
