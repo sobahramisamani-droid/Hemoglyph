@@ -1208,7 +1208,6 @@ elif step == 4:
     with tab5:
         st.markdown(t["chat_heading"])
         st.markdown(t["chat_desc"])
-
         if "initial_summary" in st.session_state:
             st.info(t["chat_summary_info"])
             summary_text = st.session_state.initial_summary
@@ -1219,11 +1218,16 @@ elif step == 4:
                 )
             else:
                 st.markdown(summary_text)
-
         for msg in chatbot.history:
             with st.chat_message(msg["role"]):
-                st.markdown(msg["content"])
-
+                content = msg["content"]
+                if msg["role"] == "assistant" and st.session_state.lang == "fa":
+                    st.markdown(
+                        f'<div style="direction: rtl; text-align: justify; font-family: Vazir, sans-serif;">{content}</div>',
+                        unsafe_allow_html=True
+                    )
+                else:
+                    st.markdown(content)
         if user_query := st.chat_input(t["chat_placeholder"]):
             with st.chat_message("user"):
                 st.markdown(user_query)
@@ -1232,7 +1236,7 @@ elif step == 4:
                     reply = chatbot.chat(user_query)
                 st.markdown(reply)
             st.rerun()
-
+            
 st.markdown("<div style='margin-top:30px;'></div>", unsafe_allow_html=True)
 col_prev, _, col_next = st.columns([1.5, 4, 1.5])
 with col_prev:
