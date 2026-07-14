@@ -1089,106 +1089,98 @@ elif step == 4:
                         except:
                             pass
                         
-                compatible = []
-                non_compatible = []
-                incomplete = []
-
+                compat_names = []
+                noncompat_names = []
+                incomplete_names = []
                 for d in diagnoses:
                     status = d.get("status", "")
                     evidence = d.get("evidence", [])
+                    name = d.get("nameEn", "")
                     if status == "Present" or "Compatible" in str(evidence):
-                        compatible.append({
-                            "name": d.get("nameEn", ""),
-                            "icd10": d.get("icd10", ""),
-                            "evidence": evidence[:2]
-                        })
+                        compat_names.append(name)
                     elif status == "Insufficient Data":
-                        incomplete.append({
-                            "name": d.get("nameEn", ""),
-                            "icd10": d.get("icd10", "")
-                        })
+                        incomplete_names.append(name)
                     else:
-                        non_compatible.append({
-                            "name": d.get("nameEn", ""),
-                            "icd10": d.get("icd10", "")
-                        })
+                        noncompat_names.append(name)
 
-                risk_list = []
-                for r in risks:
-                    if r.get("status") in ("Evaluated", "AlreadyDiagnosed"):
-                        risk_list.append(f"{r.get('nameEn','')}: {round(r.get('probability',0)*100,1)}% ({r.get('riskLevel','')})")
+                risk_text = ", ".join(
+                    [f"{r.get('nameEn','')} ({round(r.get('probability',0)*100,1)}% - {r.get('riskLevel','')})"
+                     for r in risks if r.get("status") in ("Evaluated", "AlreadyDiagnosed")]
+                ) if risks else "None"
 
                 if lang == "fa":
                     prompt = f"""
-        شما یک آسیب‌شناس بالینی ارشد هستید. بر اساس داده‌های زیر یک گزارش ساختاریافته و مختصر به فارسی بنویسید.
+        شما یک پزشک مشاور بالینی هستید. بر اساس اطلاعات زیر یک **گزارش روایی و یکپارچه** (نه لیست) به فارسی بنویسید.
+        یافته‌های مهم را با پیشنهادات عملی ترکیب کنید و به تفاسیر بالینی ارجاع دهید.
 
-        ### بیمار
+        ### مشخصات بیمار
         سن {patient_info.get('Age')}، {"مرد" if patient_info.get('Sex')==1 else "زن"}، BMI {derived.get('BMI','N/A')}، سیگار {"بله" if patient_info.get('Smoking')==1 else "خیر"}
 
         ### آزمایش‌های غیرطبیعی
-        {json.dumps(abnormal_labs, indent=2) if abnormal_labs else "ندارد"}
+        {json.dumps(abnormal_labs, indent=2) if abnormal_labs else "همه موارد در محدوده طبیعی"}
 
         ### شاخص‌های محاسباتی
-        eGFR {derived.get('eGFR','N/A')}، ACR {derived.get('ACR','N/A')}، HOMA-IR {derived.get('HOMA_IR','N/A')}
+        eGFR: {derived.get('eGFR','N/A')} | ACR: {derived.get('ACR','N/A')} | HOMA-IR: {derived.get('HOMA_IR','N/A')}
 
-        ### بیماری‌های سازگار (با شواهد)
-        {json.dumps(compatible, indent=2) if compatible else "موردی نیست"}
+        ### بیماری‌های سازگار با گایدلاین (تأیید شده با شواهد)
+        {', '.join(compat_names) if compat_names else 'موردی یافت نشد'}
 
-        ### بیماری‌های ناسازگار (رد شده)
-        {json.dumps(non_compatible, indent=2) if non_compatible else "موردی نیست"}
+        ### بیماری‌های رد شده
+        {', '.join(noncompat_names) if noncompat_names else 'موردی نیست'}
 
-        ### بیماری‌های ناقص (نیاز به داده بیشتر)
-        {json.dumps(incomplete, indent=2) if incomplete else "موردی نیست"}
+        ### بیماری‌های نیازمند آزمایش بیشتر
+        {', '.join(incomplete_names) if incomplete_names else 'موردی نیست'}
 
         ### ریسک‌های ۲ ساله
-        {chr(10).join(risk_list) if risk_list else "در دسترس نیست"}
+        {risk_text}
 
-        **ساختار گزارش (مختصر):**
-        1. **بیماری‌های سازگار** – هر کدام را با شواهد اصلی آزمایش و توضیح یک‌خطی فهرست کن.
-        2. **بیماری‌های رد شده** – به اختصار بگو چرا هرکدام رد شدند.
-        3. **آزمایش‌های مورد نیاز** – چه تست‌هایی باید درخواست شود.
-        4. **متخصصان پیشنهادی** – نام متخصص و دلیل مراجعه.
-        5. **خلاصه نهایی** – یک ارزیابی کلی ۳-۴ جمله‌ای.
-
-        قوانین: از مقادیر واقعی استفاده کن. چیزی اختراع نکن. تشخیص قطعی نده. مختصر باش.
+        **دستور تهیه گزارش:**
+        - یک متن روان و منسجم بنویس، نه لیست گلوله‌ای.
+        - ابتدا مهم‌ترین یافته‌های غیرطبیعی را مرور کن و ارتباط آن‌ها را با بیماری‌های سازگار توضیح بده.
+        - سپس به بیماری‌های رد شده و علت رد آن‌ها اشاره کن (بدون اینکه دوباره فهرست کنی).
+        - بر اساس یافته‌ها، یک سری **پیشنهادات عملی** (مانند آزمایش‌های تکمیلی، اصلاح سبک زندگی، مراجعه به متخصص) ارائه کن.
+        - در انتها یک ارزیابی کلی ۴-۵ جمله‌ای بنویس که وضعیت بیمار را جمع‌بندی کند.
+        - **ارجاعات به تفاسیر بالینی** را با ذکر نام بیماری‌ها در دل متن بیاور (مثلاً «با توجه به معیارهای ADA، بیمار شرایط دیابت نوع ۲ را دارد»).
+        - از مقادیر واقعی استفاده کن و چیزی اختراع نکن. تشخیص قطعی نده.
         """
                 else:
                     prompt = f"""
-        You are a senior clinical pathologist. Summarize the following patient data into a clear, structured report.
+        You are a clinical consultant. Based on the data below, write a **cohesive narrative report** (not a bullet list) in English.
+        Weave the important findings together with practical suggestions and clinical interpretation references.
 
-        ### PATIENT
-        Age {patient_info.get('Age')} { "Male" if patient_info.get('Sex')==1 else "Female"}, BMI {derived.get('BMI','N/A')}, Smoking {"Yes" if patient_info.get('Smoking')==1 else "No"}
+        ### Patient
+        Age {patient_info.get('Age')}, {"Male" if patient_info.get('Sex')==1 else "Female"}, BMI {derived.get('BMI','N/A')}, Smoking {"Yes" if patient_info.get('Smoking')==1 else "No"}
 
-        ### ABNORMAL LABS
-        {json.dumps(abnormal_labs, indent=2) if abnormal_labs else "None"}
+        ### Abnormal Labs
+        {json.dumps(abnormal_labs, indent=2) if abnormal_labs else "All within normal limits"}
 
-        ### DERIVED METRICS
-        eGFR {derived.get('eGFR','N/A')}, ACR {derived.get('ACR','N/A')}, HOMA-IR {derived.get('HOMA_IR','N/A')}
+        ### Derived Metrics
+        eGFR: {derived.get('eGFR','N/A')} | ACR: {derived.get('ACR','N/A')} | HOMA-IR: {derived.get('HOMA_IR','N/A')}
 
-        ### COMPATIBLE DISEASES (with evidence)
-        {json.dumps(compatible, indent=2) if compatible else "None"}
+        ### Guideline-Compatible Conditions (confirmed)
+        {', '.join(compat_names) if compat_names else 'None'}
 
-        ### NON-COMPATIBLE DISEASES (ruled out)
-        {json.dumps(non_compatible, indent=2) if non_compatible else "None"}
+        ### Ruled Out Conditions
+        {', '.join(noncompat_names) if noncompat_names else 'None'}
 
-        ### INCOMPLETE DISEASES (need more data)
-        {json.dumps(incomplete, indent=2) if incomplete else "None"}
+        ### Conditions Requiring Further Data
+        {', '.join(incomplete_names) if incomplete_names else 'None'}
 
-        ### 2-YEAR RISKS
-        {chr(10).join(risk_list) if risk_list else "Not available"}
+        ### 2-Year Risk Predictions
+        {risk_text}
 
-        **Report structure (be concise):**
-        1. **Compatible diseases** – list each with key supporting lab evidence and a one-line explanation.
-        2. **Ruled‑out diseases** – briefly say why each was ruled out.
-        3. **Missing tests** – what needs to be ordered.
-        4. **Specialists to consult** – name the specialist and the reason.
-        5. **Summary** – 3-4 sentence overall assessment.
-
-        Rules: Use real values. Do not invent. Do not diagnose. Be brief.
+        **Report Instructions:**
+        - Write a smooth, flowing narrative, not bullet points.
+        - Start by reviewing the most significant abnormal findings and explain their relationship to the compatible conditions.
+        - Mention ruled-out conditions and briefly why they don't apply (without listing).
+        - Based on the findings, provide **practical suggestions** (e.g., additional tests, lifestyle modifications, specialist referrals).
+        - End with a 4-5 sentence overall assessment.
+        - **Reference the clinical interpretations** by mentioning disease names within the narrative (e.g., "According to ADA criteria, the patient meets the threshold for type 2 diabetes").
+        - Use real values; do not invent. Do not give a definitive diagnosis.
         """
 
                 messages = [
-                    {"role": "system", "content": "You are a clinical pathologist. Provide a concise, evidence-based report in the requested language."},
+                    {"role": "system", "content": "You are a clinical consultant. Write a cohesive, evidence-based report that integrates findings, references, and recommendations."},
                     {"role": "user", "content": prompt}
                 ]
                 response = client.chat.completions.create(
