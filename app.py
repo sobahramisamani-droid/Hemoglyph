@@ -1068,6 +1068,8 @@ elif step == 4:
             try:
                 client = groq.Client(api_key=api_key)
 
+                lang = st.session_state.get("lang", "en")
+
                 abnormal_labs = []
                 gender_lower = "male" if patient_info.get("Sex") == 1 else "female"
                 for key, val in inputs.items():
@@ -1098,7 +1100,7 @@ elif step == 4:
                         compatible.append({
                             "name": d.get("nameEn", ""),
                             "icd10": d.get("icd10", ""),
-                            "evidence": evidence[:2]  
+                            "evidence": evidence[:2]
                         })
                     elif status == "Insufficient Data":
                         incomplete.append({
@@ -1116,7 +1118,42 @@ elif step == 4:
                     if r.get("status") in ("Evaluated", "AlreadyDiagnosed"):
                         risk_list.append(f"{r.get('nameEn','')}: {round(r.get('probability',0)*100,1)}% ({r.get('riskLevel','')})")
 
-                prompt = f"""
+                if lang == "fa":
+                    prompt = f"""
+        شما یک آسیب‌شناس بالینی ارشد هستید. بر اساس داده‌های زیر یک گزارش ساختاریافته و مختصر به فارسی بنویسید.
+
+        ### بیمار
+        سن {patient_info.get('Age')}، {"مرد" if patient_info.get('Sex')==1 else "زن"}، BMI {derived.get('BMI','N/A')}، سیگار {"بله" if patient_info.get('Smoking')==1 else "خیر"}
+
+        ### آزمایش‌های غیرطبیعی
+        {json.dumps(abnormal_labs, indent=2) if abnormal_labs else "ندارد"}
+
+        ### شاخص‌های محاسباتی
+        eGFR {derived.get('eGFR','N/A')}، ACR {derived.get('ACR','N/A')}، HOMA-IR {derived.get('HOMA_IR','N/A')}
+
+        ### بیماری‌های سازگار (با شواهد)
+        {json.dumps(compatible, indent=2) if compatible else "موردی نیست"}
+
+        ### بیماری‌های ناسازگار (رد شده)
+        {json.dumps(non_compatible, indent=2) if non_compatible else "موردی نیست"}
+
+        ### بیماری‌های ناقص (نیاز به داده بیشتر)
+        {json.dumps(incomplete, indent=2) if incomplete else "موردی نیست"}
+
+        ### ریسک‌های ۲ ساله
+        {chr(10).join(risk_list) if risk_list else "در دسترس نیست"}
+
+        **ساختار گزارش (مختصر):**
+        1. **بیماری‌های سازگار** – هر کدام را با شواهد اصلی آزمایش و توضیح یک‌خطی فهرست کن.
+        2. **بیماری‌های رد شده** – به اختصار بگو چرا هرکدام رد شدند.
+        3. **آزمایش‌های مورد نیاز** – چه تست‌هایی باید درخواست شود.
+        4. **متخصصان پیشنهادی** – نام متخصص و دلیل مراجعه.
+        5. **خلاصه نهایی** – یک ارزیابی کلی ۳-۴ جمله‌ای.
+
+        قوانین: از مقادیر واقعی استفاده کن. چیزی اختراع نکن. تشخیص قطعی نده. مختصر باش.
+        """
+                else:
+                    prompt = f"""
         You are a senior clinical pathologist. Summarize the following patient data into a clear, structured report.
 
         ### PATIENT
@@ -1149,8 +1186,9 @@ elif step == 4:
 
         Rules: Use real values. Do not invent. Do not diagnose. Be brief.
         """
+
                 messages = [
-                    {"role": "system", "content": "You are a clinical pathologist. Provide a concise, evidence-based report."},
+                    {"role": "system", "content": "You are a clinical pathologist. Provide a concise, evidence-based report in the requested language."},
                     {"role": "user", "content": prompt}
                 ]
                 response = client.chat.completions.create(
@@ -1160,6 +1198,7 @@ elif step == 4:
                     max_tokens=800
                 )
                 return response.choices[0].message.content
+
             except Exception as e:
                 return f"Failed to generate AI interpretation: {str(e)}"
         if st.button(t["generate_expert_btn"], type="primary", use_container_width=True):
