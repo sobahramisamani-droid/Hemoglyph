@@ -14,55 +14,6 @@ from AI import BloodLabChatbot
 
 if not hasattr(FeatureCategory, "BONE_MINERAL"):
     FeatureCategory.BONE_MINERAL = "Bone & Mineral Panel"
-st.markdown("""
-<style>
-    /* Import Vazir font from CDN */
-    @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v33.1.0/dist/font-face.css');
-
-    /* فقط برای متن‌های فارسی فونت وزیر اعمال شود */
-    @font-face {
-        font-family: 'Vazir';
-        src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v33.1.0/dist/Vazir.woff2') format('woff2');
-        font-weight: normal;
-        font-style: normal;
-        unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10E60-10E7F, U+1EE00-1EEFF;
-    }
-
-    @font-face {
-        font-family: 'Vazir';
-        src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v33.1.0/dist/Vazir-Bold.woff2') format('woff2');
-        font-weight: bold;
-        font-style: normal;
-        unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10E60-10E7F, U+1EE00-1EEFF;
-    }
-
-    /* تنظیم فونت اصلی برنامه بدون تغییر فونت آیکون‌ها */
-    .stApp, .stMarkdown, .stText, .stAlert, .stButton button,
-    .stChatMessage, .stSelectbox, .stTextInput, .stNumberInput,
-    .stCheckbox, .stExpander, .stDataFrame, .stTabs, .stSidebar,
-    h1, h2, h3, h4, h5, h6, p, span, div:not([class*="icon"]):not([class*="material"]),
-    label, input:not([type="checkbox"]):not([type="radio"]),
-    textarea, .metric-label, .metric-value {
-        font-family: 'Vazir', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-    }
-
-    /* حفظ فونت پیش‌فرض برای آیکون‌ها */
-    [class*="st-emotion-cache"],
-    [data-testid="stDecoration"],
-    [data-testid="stSidebar"],
-    svg, [class*="material-icons"], [class*="icon"] {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-    }
-
-    /* اعمال فونت وزیر روی متن‌های فارسی داخل المان‌ها */
-    *:lang(fa), [lang="fa"], .persian-text,
-    div:has(> [lang="fa"]),
-    p:has(> [lang="fa"]),
-    span:has(> [lang="fa"]) {
-        font-family: 'Vazir', sans-serif !important;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 # ------------------------------------------------------------
 # Translation dictionary
