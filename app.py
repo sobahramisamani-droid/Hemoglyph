@@ -11,9 +11,140 @@ from interpretation import interpret_lab_data
 from prediction import predict_2year_risks
 from disease_guidelines import DISEASE_GUIDELINES
 from AI import BloodLabChatbot
+st.markdown("""
+<style>
+    /* Import Vazir font from CDN */
+    @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v33.1.0/dist/font-face.css');
 
+    /* فقط برای متن‌های فارسی فونت وزیر اعمال شود */
+    @font-face {
+        font-family: 'Vazir';
+        src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v33.1.0/dist/Vazir.woff2') format('woff2');
+        font-weight: normal;
+        font-style: normal;
+        unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10E60-10E7F, U+1EE00-1EEFF;
+    }
+
+    @font-face {
+        font-family: 'Vazir';
+        src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v33.1.0/dist/Vazir-Bold.woff2') format('woff2');
+        font-weight: bold;
+        font-style: normal;
+        unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10E60-10E7F, U+1EE00-1EEFF;
+    }
+
+    /* تنظیم فونت اصلی برنامه بدون تغییر فونت آیکون‌ها */
+    .stApp, .stMarkdown, .stText, .stAlert, .stButton button,
+    .stChatMessage, .stSelectbox, .stTextInput, .stNumberInput,
+    .stCheckbox, .stExpander, .stDataFrame, .stTabs, .stSidebar,
+    h1, h2, h3, h4, h5, h6, p, span, div:not([class*="icon"]):not([class*="material"]),
+    label, input:not([type="checkbox"]):not([type="radio"]),
+    textarea, .metric-label, .metric-value {
+        font-family: 'Vazir', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    }
+
+    /* حفظ فونت پیش‌فرض برای آیکون‌ها */
+    [class*="st-emotion-cache"],
+    [data-testid="stDecoration"],
+    [data-testid="stSidebar"],
+    svg, [class*="material-icons"], [class*="icon"] {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    }
+
+    /* اعمال فونت وزیر روی متن‌های فارسی داخل المان‌ها */
+    *:lang(fa), [lang="fa"], .persian-text,
+    div:has(> [lang="fa"]),
+    p:has(> [lang="fa"]),
+    span:has(> [lang="fa"]) {
+        font-family: 'Vazir', sans-serif !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 if not hasattr(FeatureCategory, "BONE_MINERAL"):
     FeatureCategory.BONE_MINERAL = "Bone & Mineral Panel"
+
+PROFILE_KEYS = [
+    "Age", "Sex", "Weight", "Height", "Waist", "Systolic_BP", "Diastolic_BP",
+    "HeartRate", "SleepHours", "Smoking", "PhysicalActivity",
+    "FamilyHistory_DM", "FamilyHistory_CAD", "FamilyHistory_HTN", "FamilyHistory_Obesity"
+]
+
+QUAL_FEATURES = {
+    "UrineNitrite": ["Negative", "Positive"],
+    "UrineLeukocyteEsterase": ["Negative", "Positive"],
+    "HBsAg": ["Negative", "Positive"],
+    "HBeAg": ["Negative", "Positive"],
+    "Anti_HCV": ["Negative", "Positive"],
+    "HIV_AgAb": ["Negative", "Positive"],
+    "RPR": ["Negative", "Positive"],
+    "TPPA": ["Negative", "Positive"],
+    "DAT": ["Negative", "Positive"],
+    "Lupus_Anticoagulant": ["Negative", "Positive"],
+    "ANCA": ["Negative", "Positive"],
+    "Anti_HBc": ["Negative", "Positive"],
+    "Anti_HBe": ["Negative", "Positive"],
+    "ENA_Panel": ["Negative", "Positive"],
+    "UrineProteinQualitative": ["Negative", "Trace", "1+", "2+", "3+", "4+"],
+    "UrineGlucoseQualitative": ["Negative", "Trace", "1+", "2+", "3+", "4+"],
+    "UrineKetones": ["Negative", "Trace", "Small", "Moderate", "Large"],
+    "UrineBlood": ["Negative", "Trace", "Small", "Moderate", "Large"]
+}
+
+st.set_page_config(
+    page_title="Clinical Laboratory AI Assistant",
+    page_icon="🧬",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+st.markdown("""
+<style>
+    .stApp {
+        background-color: #f8fafc;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    h1, h2, h3, h4, h5 {
+        color: #0f172a !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.025em;
+    }
+    .clinical-card {
+        background-color: #ffffff;
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.02);
+        margin-bottom: 20px;
+    }
+    .diagnosis-badge-present {
+        background-color: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+        padding: 16px 20px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+    .diagnosis-badge-absent {
+        background-color: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        padding: 16px 20px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+    .metric-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+    .metric-label {
+        font-size: 13px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # ------------------------------------------------------------
 # Translation dictionary
