@@ -192,7 +192,7 @@ def generate_initial_summary(self) -> str:
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3, 
-            max_tokens=1500     
+            max_tokens=1000     
         )
         return response.choices[0].message.content
     except Exception as e:
