@@ -14,7 +14,92 @@ from AI import BloodLabChatbot
 
 if not hasattr(FeatureCategory, "BONE_MINERAL"):
     FeatureCategory.BONE_MINERAL = "Bone & Mineral Panel"
+st.markdown("""
+<style>
+    /* Import Vazir font from CDN */
+    @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v33.1.0/dist/font-face.css');
 
+    /* Apply Vazir to ALL elements that contain Persian characters */
+    *[lang="fa"],
+    *:has(> *:lang("fa")),
+    .stApp,
+    .stMarkdown,
+    .stText,
+    .stAlert,
+    .stButton,
+    .stChatMessage,
+    .stSelectbox,
+    .stTextInput,
+    .stNumberInput,
+    .stCheckbox,
+    .stExpander,
+    .stDataFrame,
+    .stTabs,
+    .stSidebar,
+    h1, h2, h3, h4, h5, h6,
+    p, span, div, label, button, input, select, textarea,
+    .metric-label, .metric-value {
+        font-family: 'Vazir', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    }
+
+    /* Specific font settings for Persian text */
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Override with Vazir when Persian characters are present */
+    .stApp * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 'Vazir', sans-serif !important;
+    }
+
+    /* Ensure Vazir is used for RTL text */
+    [dir="rtl"] {
+        direction: rtl;
+        text-align: right;
+    }
+
+    /* Fix for Persian numbers and characters */
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 'Vazir', sans-serif;
+    }
+
+    /* Specific classes that commonly contain Persian text */
+    .st-emotion-cache-10trblm,
+    .st-emotion-cache-1q8ddzd,
+    .st-emotion-cache-183lzff,
+    .st-emotion-cache-1cvow4s,
+    .st-emotion-cache-16txtl3,
+    .st-emotion-cache-1kyxreq,
+    .st-emotion-cache-1v0mbdj,
+    .st-emotion-cache-1r6slb0,
+    .st-emotion-cache-1xarl3l,
+    .st-emotion-cache-1wmy9hl,
+    .st-emotion-cache-1avcm0n,
+    .st-emotion-cache-1f3w014,
+    .st-emotion-cache-1vtueo4,
+    .st-emotion-cache-1v7uza4,
+    .st-emotion-cache-1l6ema2,
+    .st-emotion-cache-1dp5m8t,
+    .st-emotion-cache-1hskb1m,
+    .st-emotion-cache-1v02s4x,
+    .st-emotion-cache-1n76nqr,
+    .st-emotion-cache-1o3jp5z,
+    .st-emotion-cache-1p1m4ay,
+    .st-emotion-cache-1p8iqe6,
+    .st-emotion-cache-1p4g8p1,
+    .st-emotion-cache-1p5wlh4,
+    .st-emotion-cache-1p6s9q4 {
+        font-family: 'Vazir', 'Inter', sans-serif !important;
+    }
+
+    /* Make Persian text slightly larger for better readability */
+    .persian-text {
+        font-family: 'Vazir', sans-serif !important;
+        font-size: 1.05em !important;
+        line-height: 1.8 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 PROFILE_KEYS = [
     "Age", "Sex", "Weight", "Height", "Waist", "Systolic_BP", "Diastolic_BP",
     "HeartRate", "SleepHours", "Smoking", "PhysicalActivity",
