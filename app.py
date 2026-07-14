@@ -1209,7 +1209,7 @@ elif step == 4:
         st.markdown(t["chat_heading"])
         st.markdown(t["chat_desc"])
         if "initial_summary" in st.session_state:
-#            st.info(t["chat_summary_info"])
+            st.info(t["chat_summary_info"])
             summary_text = st.session_state.initial_summary
             if st.session_state.lang == "fa":
                 st.markdown(
