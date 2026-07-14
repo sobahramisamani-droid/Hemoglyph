@@ -9,6 +9,273 @@ from interpretation import interpret_lab_data
 from prediction import predict_2year_risks
 from disease_guidelines import DISEASE_GUIDELINES
 from AI import BloodLabChatbot
+
+st.markdown("""
+<style>
+
+/* ===============================
+   BloodLab Ancient Medical Theme
+   =============================== */
+
+.stApp{
+    background: #F5F0E6;
+    color:#2D2D2D;
+}
+
+/* Main container */
+.main .block-container{
+    padding-top:2rem;
+    padding-bottom:2rem;
+    max-width:1200px;
+}
+
+/* Sidebar */
+
+section[data-testid="stSidebar"]{
+    background:#E8DCC7;
+    border-right:3px solid #8B4513;
+}
+
+/* Titles */
+
+h1{
+    color:#7B1113;
+    font-family:Georgia,serif;
+    font-weight:700;
+}
+
+h2{
+    color:#7B1113;
+    font-family:Georgia,serif;
+}
+
+h3{
+    color:#7B1113;
+    font-family:Georgia,serif;
+}
+
+/* Paragraph */
+
+p,label{
+    color:#2D2D2D;
+    font-size:16px;
+}
+
+/* Cards */
+
+div[data-testid="stVerticalBlock"] > div{
+    border-radius:15px;
+}
+
+/* Metric */
+
+div[data-testid="metric-container"]{
+    background:#FFFDF8;
+    border:2px solid #C5B08A;
+    border-radius:15px;
+    padding:15px;
+    box-shadow:3px 3px 10px rgba(0,0,0,0.08);
+}
+
+/* Expander */
+
+details{
+    background:#FFFDF8;
+    border:2px solid #D3C0A1;
+    border-radius:10px;
+    padding:10px;
+}
+
+/* Text Input */
+
+.stTextInput input{
+
+    background:#FFFDF8;
+
+    border:2px solid #B38B59;
+
+    border-radius:10px;
+
+    color:#2D2D2D;
+
+}
+
+/* Number Input */
+
+.stNumberInput input{
+
+    background:#FFFDF8;
+
+    border:2px solid #B38B59;
+
+    border-radius:10px;
+
+}
+
+/* SelectBox */
+
+.stSelectbox div[data-baseweb="select"]{
+
+    background:#FFFDF8;
+
+}
+
+/* Dataframe */
+
+[data-testid="stDataFrame"]{
+
+    border:2px solid #B38B59;
+
+    border-radius:10px;
+
+}
+
+/* Tables */
+
+table{
+
+    border-collapse:collapse;
+
+}
+
+thead tr{
+
+    background:#7B1113;
+
+    color:white;
+
+}
+
+tbody tr:nth-child(even){
+
+    background:#F8F3EA;
+
+}
+
+/* Buttons */
+
+.stButton>button{
+
+    background:#7B1113;
+
+    color:white;
+
+    border:none;
+
+    border-radius:12px;
+
+    padding:10px 25px;
+
+    font-weight:bold;
+
+    transition:0.3s;
+
+}
+
+.stButton>button:hover{
+
+    background:#A52A2A;
+
+    transform:scale(1.03);
+
+}
+
+/* Download button */
+
+.stDownloadButton>button{
+
+    background:#7B1113;
+
+    color:white;
+
+    border-radius:12px;
+
+}
+
+/* Chat */
+
+[data-testid="stChatMessage"]{
+
+    background:#FFFDF8;
+
+    border-left:5px solid #7B1113;
+
+    border-radius:12px;
+
+    padding:15px;
+
+    margin-bottom:10px;
+
+}
+
+/* Progress */
+
+.stProgress>div>div{
+
+    background:#7B1113;
+
+}
+
+/* Tabs */
+
+button[data-baseweb="tab"]{
+
+    background:#EADFCB;
+
+    border-radius:10px 10px 0 0;
+
+    color:#5A2D0C;
+
+}
+
+button[data-baseweb="tab"][aria-selected="true"]{
+
+    background:#7B1113;
+
+    color:white;
+
+}
+
+/* Slider */
+
+.stSlider{
+
+    color:#7B1113;
+
+}
+
+/* Success */
+
+.stAlert{
+
+    border-radius:12px;
+
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#8B4513;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#EFE6D7;
+
+}
+
+</style>
+""", unsafe_allow_html=True)
 st.markdown("""
 <style>
     /* Import Vazir font */
