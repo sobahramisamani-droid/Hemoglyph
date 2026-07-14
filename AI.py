@@ -180,8 +180,8 @@ class BloodLabChatbot:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=0.0,
-                max_tokens=400
+                temperature=0.1,
+                max_tokens=800
             )
             return response.choices[0].message.content
         except Exception as e:
@@ -220,8 +220,8 @@ class BloodLabChatbot:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=0.0,
-                max_tokens=300
+                temperature=0.1,
+                max_tokens=800
             )
             reply = response.choices[0].message.content
         except Exception as e:
