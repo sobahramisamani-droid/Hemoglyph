@@ -132,26 +132,72 @@ class BloodLabChatbot:
         self.patient_context = "\n".join(lines)
 
     
-    def generate_initial_summary(self) -> str:
-        if not self.patient_context:
-            raise ValueError("Patient context has not been set.")
+def generate_initial_summary(self) -> str:
+    if not self.patient_context:
+        raise ValueError("Patient context has not been set.")
 
-        messages = [
-            {"role": "system", "content": self.SYSTEM_INSTRUCTION + "\n\n" + self.patient_context},
-            {"role": "user", "content": "Please provide a brief, friendly summary of my laboratory results, highlighting the most important abnormal findings, compatible guideline-based conditions, and any significant 2-year risk predictions. Keep it understandable for a non-medical person."}
-        ]
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                temperature=0.1,
-                max_tokens=400
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            logger.warning(f"generate_initial_summary failed: {e}")
-            return "I'm sorry, I couldn't generate the summary. Please check your API key and try again."
+    prompt = (
+        "You are a senior clinical laboratory scientist and educator. "
+        "Based on the patient's complete laboratory data provided above, "
+        "create a thorough, detailed medical summary. "
+        "The summary must be educational and explain each finding clearly, "
+        "as if you were teaching a medical student. "
+        "Use the following structure, and write at least 3-4 sentences for each disease mentioned:\n\n"
 
+        "## 📋 COMPATIBLE FINDINGS – DETAILED EVIDENCE REVIEW\n"
+        "For each compatible disease, explain:\n"
+        "- **Disease name** and ICD‑10\n"
+        "- **Which laboratory values are abnormal** (provide the patient’s exact result and the normal range)\n"
+        "- **Why these abnormalities support the diagnosis** – describe the underlying pathophysiology in simple terms\n"
+        "- **Clinical significance** – what this finding means for the patient’s health\n"
+        "- **Typical next steps** (e.g., confirmatory tests, lifestyle changes, specialist referral)\n\n"
+
+        "## ❌ NON‑COMPATIBLE FINDINGS – WHY THEY WERE RULED OUT\n"
+        "For each disease that was considered but not confirmed, explain in detail:\n"
+        "- **Disease name** and ICD‑10\n"
+        "- **Which diagnostic criteria were NOT met** (e.g., “Hb is 13.8 g/dL, but the guideline requires <12.0 g/dL”)\n"
+        "- **Why the patient’s specific values exclude this diagnosis**\n"
+        "- **What would have to change** for the diagnosis to be considered in the future\n\n"
+
+        "## 🔬 MISSING DATA – WHAT TESTS ARE STILL NEEDED\n"
+        "For any disease that could not be fully evaluated, list:\n"
+        "- **Disease name**\n"
+        "- **Exactly which lab tests are missing**\n"
+        "- **Why those tests are necessary** for a definitive conclusion\n\n"
+
+        "## 🩺 RECOMMENDED MEDICAL SPECIALISTS\n"
+        "Based on the compatible findings, recommend the most relevant specialists. For each:\n"
+        "- **Specialist type** (e.g., Endocrinologist, Cardiologist, Nephrologist)\n"
+        "- **Reason for referral** – explain why this specialist is needed, referencing the specific lab abnormalities\n"
+        "- **Urgency** (routine vs. urgent)\n\n"
+
+        "## 📝 OVERALL CLINICAL SUMMARY\n"
+        "Write a comprehensive summary (at least 8-10 sentences) that:\n"
+        "- Integrates all the major findings\n"
+        "- Highlights the most critical health risks\n"
+        "- Suggests a logical sequence of actions (lifestyle, follow-up tests, consultations)\n"
+        "- Reassures the patient where possible, but is honest about serious findings\n\n"
+
+        "IMPORTANT RULES:\n"
+        "- Always use the patient’s actual laboratory values from the context above.\n"
+        "- Never invent numbers. If a value is missing, state that it is unavailable.\n"
+        "- Write in a professional yet friendly tone, as if explaining to a patient who wants to understand their health deeply.\n"
+        "- Do NOT diagnose diseases or prescribe medications. Always recommend consulting a physician."
+    )
+    try:
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": self.SYSTEM_INSTRUCTION + "\n\n" + self.patient_context},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3, 
+            max_tokens=1500     
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        logger.warning(f"generate_initial_summary failed: {e}")
+        return "I'm sorry, I couldn't generate the summary."
     
     def chat(self, user_message: str) -> str:
         if self.question_count >= self.MAX_QUESTIONS:
@@ -178,8 +224,8 @@ class BloodLabChatbot:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=0.1,
-                max_tokens=300
+                temperature=0.4,
+                max_tokens=600
             )
             reply = response.choices[0].message.content
         except Exception as e:
