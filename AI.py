@@ -1,3 +1,5 @@
+# AI.py
+
 import os
 import logging
 from dotenv import load_dotenv
@@ -139,7 +141,7 @@ class BloodLabChatbot:
         lang = st.session_state.get("lang", "en")
 
         if lang == "fa":
-            language_instruction = "تو یک دستیار پزشکی هستی. لطفاً پاسخ خود را فقط به زبان فارسی بنویس."
+            language_instruction = "تو یک دستیار پزشکی هستی. لطفاً پاسخ خود را فقط به فارسی بنویس."
             user_prompt = (
                 "لطفاً یک خلاصه مختصر و مفید از نتایج آزمایش من ارائه دهید، "
                 "با برجسته کردن مهمترین یافته‌های غیرطبیعی، بیماری‌های سازگار با گایدلاین‌ها "
@@ -180,6 +182,7 @@ class BloodLabChatbot:
 
         messages = [{"role": "system", "content": self.SYSTEM_INSTRUCTION}]
 
+        # Language enforcement
         lang = st.session_state.get("lang", "en")
         if lang == "fa":
             messages.append({"role": "system", "content": "از این پس تمام پاسخ‌های خود را فقط به فارسی بنویس."})
