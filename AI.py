@@ -214,8 +214,10 @@ class BloodLabChatbot:
             )
             reply = response.text
         except Exception as e:
-            logger.warning(f"chat failed: {e}")
-            reply = "I'm having trouble connecting to the AI service. Please try again later."
+            import traceback
+            traceback.print_exc()
+
+    reply = f"Error: {e}"
 
         # به‌روزرسانی تاریخچه (بدون Context و Summary)
         self.history.append({"role": "user", "content": user_message})
