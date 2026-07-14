@@ -9,6 +9,7 @@ from interpretation import interpret_lab_data
 from prediction import predict_2year_risks
 from disease_guidelines import DISEASE_GUIDELINES
 from AI import BloodLabChatbot
+import groq
 st.markdown("""
 <style>
     /* Import Vazir font */
@@ -236,7 +237,7 @@ TRANSLATIONS = {
         "title": "🧬 دستیار هوشمند آزمایشگاهی",
         "subtitle": "##### تحلیل جامع نتایج آزمایش بر اساس گایدلاین‌های بالینی و پیش‌بینی ریسک ۲ ساله",
         "presets_heading": "##### 🚀 پروفایل‌های آماده بیمار",
-        "workflow_heading": "📋",
+        "workflow_heading": "📋 روند کار",
         "step_label": "**مرحله {step} از ۴**",
         "step1_title": "### 👤 مرحله ۱: مشخصات بالینی و جمعیت‌شناختی",
         "step1_desc": "اطلاعات پایه بیمار، علائم حیاتی، عادات زندگی و سابقه خانوادگی را وارد کنید.",
@@ -1063,63 +1064,112 @@ elif step == 4:
                 try:
                     api_key = st.secrets["GROQ_API_KEY"]
                 except (FileNotFoundError, KeyError):
-                    return "Groq API key not configured. Set your API key in Settings > Secrets."
+                    return "Groq API key not configured."
+        
             try:
                 client = groq.Client(api_key=api_key)
+        
+                # Separate diagnoses by status
+                compatible = [d for d in diagnoses if d.get("status") == "Present" or "Compatible" in str(d.get("evidence"))]
+                non_compatible = [d for d in diagnoses if d.get("status") not in ("Present", "Evaluated", "AlreadyDiagnosed") and "Compatible" not in str(d.get("evidence")) and d.get("status") != "Insufficient Data"]
+                incomplete = [d for d in diagnoses if d.get("status") == "Insufficient Data"]
+        
                 prompt = f"""
-You are an advanced, double‑board‑certified Clinical Laboratory Director and AI Consulting Physician.
-Interpret the following lab results and compile a highly structured, objective medical consult report in {"English" if st.session_state.lang == "en" else "Persian"}.
-
-### Patient Profile:
-- Age: {patient_info.get('Age')} years
-- Biological Sex: {"Male" if patient_info.get('Sex') == 1 else "Female"}
-- Weight: {patient_info.get('Weight')} kg
-- Height: {patient_info.get('Height')} cm
-- BMI: {derived.get('BMI', 'N/A')} kg/m²
-- Smoking Status: {"Yes" if patient_info.get('Smoking') == 1 else "No"}
-- Family History of DM: {"Yes" if patient_info.get('FamilyHistory_DM') == 1 else "No"}
-- Family History of CAD: {"Yes" if patient_info.get('FamilyHistory_CAD') == 1 else "No"}
-
-### Entered Laboratory Values:
-{json.dumps(inputs, indent=2)}
-
-### Computed Derived Markers:
-{json.dumps(derived, indent=2)}
-
-### Active Clinical Diagnostic Interpretations:
-{json.dumps([{ 'diseaseKey': d['diseaseKey'], 'nameEn': d['nameEn'], 'icd10': d['icd10'], 'evidence': d['evidence'], 'noteEn': d['noteEn'] } for d in diagnoses], indent=2)}
-
-### 2‑Year Disease Risk Prediction Scores:
-{json.dumps([{ 'diseaseKey': r['diseaseKey'], 'nameEn': r['nameEn'], 'status': r['status'], 'probability': r.get('probability', 'N/A'), 'riskLevel': r.get('riskLevel', 'N/A') } for r in risks], indent=2)}
-
-Provide a beautiful clinical report including:
-1. **Clinical Summary & Narrative Interpretation**
-2. **Pathophysiologic Correlation**
-3. **2‑Year Risk Trajectory Guidance**
-4. **Recommended Follow‑up & Confirmatory Tests**
-
-Maintain an authoritative, precise, yet compassionate professional medical tone.
-"""
+        You are a double‑board‑certified Clinical Pathologist and Laboratory Director with 20 years of teaching experience.
+        You are reviewing a patient's complete laboratory profile and creating a detailed, educational consultation report.
+        Explain every finding thoroughly, as if you were mentoring a junior doctor.
+        
+        ### PATIENT PROFILE
+        - Age: {patient_info.get('Age')} years
+        - Sex: {"Male" if patient_info.get('Sex') == 1 else "Female"}
+        - Weight: {patient_info.get('Weight')} kg | Height: {patient_info.get('Height')} cm
+        - BMI: {derived.get('BMI', 'N/A')} kg/m²
+        - Smoking: {"Yes" if patient_info.get('Smoking') == 1 else "No"}
+        - Family History DM: {"Yes" if patient_info.get('FamilyHistory_DM') == 1 else "No"}
+        - Family History CAD: {"Yes" if patient_info.get('FamilyHistory_CAD') == 1 else "No"}
+        
+        ### ALL ENTERED LABORATORY VALUES
+        {json.dumps(inputs, indent=2)}
+        
+        ### DERIVED METRICS
+        {json.dumps(derived, indent=2)}
+        
+        ### COMPATIBLE DIAGNOSES (Guideline‑Confirmed)
+        {json.dumps(compatible, indent=2) if compatible else "None"}
+        
+        ### NON‑COMPATIBLE DIAGNOSES (Ruled Out)
+        {json.dumps(non_compatible, indent=2) if non_compatible else "None"}
+        
+        ### INCOMPLETE DIAGNOSES (Missing Data)
+        {json.dumps(incomplete, indent=2) if incomplete else "None"}
+        
+        ### 2‑YEAR RISK PREDICTIONS
+        {json.dumps(risks, indent=2)}
+        
+        ### YOUR TASK
+        Produce a **detailed, narrative‑style medical report** with the following sections.
+        For each section, write thorough explanations (3-6 sentences per item where applicable).
+        
+        ## 1️⃣ DETAILED ANALYSIS OF COMPATIBLE DIAGNOSES
+        For each compatible disease:
+        - **Disease** (ICD‑10)
+        - **Key Abnormal Values**: List each relevant lab result with the patient’s exact number, the normal range, and a clear description of how far it deviates.
+        - **Pathophysiology**: Explain in plain language the biological mechanism that connects the abnormal lab values to the disease.
+        - **Clinical Implications**: What does this finding mean for the patient’s health now and in the near future?
+        - **Guideline Reference**: Mention the specific guideline (e.g., ADA, KDIGO) that defines the criteria.
+        - **Suggested Actions**: What confirmatory tests, lifestyle changes, or referrals are typically recommended?
+        
+        ## 2️⃣ DETAILED ANALYSIS OF NON‑COMPATIBLE DIAGNOSES
+        For each ruled‑out disease:
+        - **Disease** (ICD‑10)
+        - **Diagnostic Criteria**: State the exact criteria required by the guideline.
+        - **Why It Was Ruled Out**: Explain precisely which criteria were not met, using the patient’s actual numbers.
+        - **What Would Change the Picture**: Under what circumstances (e.g., which labs would need to worsen) might this diagnosis become relevant in the future.
+        
+        ## 3️⃣ MISSING DATA — WHAT WE STILL NEED
+        For each disease that could not be fully assessed:
+        - **Disease**
+        - **Missing Laboratory Tests**: List the exact missing tests.
+        - **Why They Matter**: Explain what information those tests would provide.
+        
+        ## 4️⃣ RECOMMENDED SPECIALIST REFERRALS
+        Based on the compatible findings, recommend the appropriate specialists. For each:
+        - **Specialist** (e.g., Endocrinologist, Cardiologist, Nephrologist)
+        - **Reasoning**: Cite the specific abnormal findings that warrant this referral.
+        - **Urgency**: Indicate whether the referral should be routine, semi‑urgent, or urgent.
+        
+        ## 5️⃣ 2‑YEAR RISK TRAJECTORY INTERPRETATION
+        Explain in detail what the risk predictions mean:
+        - What factors are driving each high risk?
+        - How might lifestyle or medical interventions change these predictions?
+        - What follow‑up monitoring is recommended?
+        
+        ## 6️⃣ COMPREHENSIVE CLINICAL SUMMARY
+        Write a thorough summary (8-12 sentences) that:
+        - Synthesises all the above information into a coherent narrative
+        - Highlights the most critical findings
+        - Provides a clear, actionable plan (tests, referrals, lifestyle)
+        - Conveys empathy and reassurance while being honest about health risks
+        
+        **CRITICAL RULES:**
+        - Use ONLY the patient’s actual laboratory values provided above.
+        - Be precise: always include the patient’s result and the normal range when discussing a lab test.
+        - Never diagnose disease conclusively or prescribe medications — always recommend physician consultation.
+        - Write in a professional, educational tone that a patient can understand.
+        """
                 messages = [
-                    {"role": "system", "content": "You are a board‑certified clinical laboratory informatics and medical consulting system. Answer in the same language as the user's prompt."},
+                    {"role": "system", "content": "You are a senior clinical pathologist and laboratory medicine educator. Provide thorough, detailed explanations using the exact patient data provided."},
                     {"role": "user", "content": prompt}
                 ]
                 response = client.chat.completions.create(
                     model="llama-3.1-8b-instant",
                     messages=messages,
-                    temperature=0.2,
-                    max_tokens=800
+                    temperature=0.3,
+                    max_tokens=1500   # افزایش فضای پاسخ
                 )
                 return response.choices[0].message.content
             except Exception as e:
                 return f"Failed to generate AI interpretation: {str(e)}"
-
-        if st.button(t["generate_expert_btn"], type="primary", use_container_width=True):
-            with st.spinner(t["spinner_expert"]):
-                ai_report = generate_ai_interpretation(patient_prof, clean_inputs, derived_markers, active_diagnoses, risk_predictions)
-                st.markdown(t["expert_report_heading"])
-                st.markdown(ai_report)
-
     with tab5:
         st.markdown(t["chat_heading"])
         st.markdown(t["chat_desc"])
