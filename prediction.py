@@ -1,13 +1,9 @@
-# prediction.py
-
 import math
 
 def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: list) -> list:
     dataset = {**inputs, **derived}
     gender = "male" if patient.get("Sex") == 1 or patient.get("Sex") == "Male" else "female"
     results = []
-
-    # Helper to check if a disease is already diagnosed as Present
     def has_diagnosis(key: str) -> bool:
         # key can be "Diabetes_Mellitus", "Prediabetes", "Cardiovascular_Risk", etc.
         # We map these keys to the actual diagnosed disease names or keys from interpretation.py:
@@ -34,8 +30,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
                 if d_key in target_keys or any(tk.lower() in d_key.lower() for tk in target_keys) or any(tk.replace("_", " ").lower() in d_name.lower() for tk in target_keys):
                     return True
         return False
-
-    # Define strict required features for each prediction model
     PREDICTION_REQUIREMENTS = {
         "Diabetes_Mellitus": ["FBS", "BMI", "FamilyHistory_DM"],
         "Prediabetes": ["FBS", "BMI", "PhysicalActivity"],
@@ -50,7 +44,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
         "Gout": ["Uric_Acid", "Creatinine"]
     }
 
-    # 1. Diabetes Risk Model
     reqs = PREDICTION_REQUIREMENTS["Diabetes_Mellitus"]
     has_reqs = all(dataset.get(r) is not None for r in reqs)
     
@@ -98,7 +91,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
             "missingFeatures": []
         })
 
-    # 2. Prediabetes Risk Model
     reqs = PREDICTION_REQUIREMENTS["Prediabetes"]
     has_reqs = all(dataset.get(r) is not None for r in reqs)
 
@@ -145,7 +137,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
             "missingFeatures": []
         })
 
-    # 3. Cardiovascular Risk Model
     reqs = PREDICTION_REQUIREMENTS["Cardiovascular_Risk"]
     has_reqs = all(dataset.get(r) is not None for r in reqs)
 
@@ -193,8 +184,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
             "requiredFeatures": reqs,
             "missingFeatures": []
         })
-
-    # 4. Chronic Kidney Disease Risk Model
     reqs = PREDICTION_REQUIREMENTS["Chronic_Kidney_Disease"]
     has_reqs = all(dataset.get(r) is not None for r in reqs)
 
@@ -242,7 +231,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
             "missingFeatures": []
         })
 
-    # 5. Acute Kidney Injury Risk Model
     reqs = PREDICTION_REQUIREMENTS["Acute_Kidney_Injury"]
     has_reqs = all(dataset.get(r) is not None for r in reqs)
 
@@ -289,7 +277,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
             "missingFeatures": []
         })
 
-    # 6. NAFLD Fatty Liver Risk Model
     reqs = PREDICTION_REQUIREMENTS["NAFLD"]
     has_reqs = all(dataset.get(r) is not None for r in reqs)
 
@@ -337,7 +324,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
             "missingFeatures": []
         })
 
-    # 7. NASH Progress Risk Model
     reqs = PREDICTION_REQUIREMENTS["NASH"]
     has_reqs = all(dataset.get(r) is not None for r in reqs)
 
@@ -385,7 +371,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
             "missingFeatures": []
         })
 
-    # 8. Metabolic Syndrome & Obesity Risk Model
     reqs = PREDICTION_REQUIREMENTS["Metabolic_Syndrome"]
     has_reqs = all(dataset.get(r) is not None for r in reqs)
 
@@ -433,7 +418,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
             "missingFeatures": []
         })
 
-    # 9. Iron Deficiency Anemia Risk Model
     reqs = PREDICTION_REQUIREMENTS["Iron_Deficiency_Anemia"]
     has_reqs = all(dataset.get(r) is not None for r in reqs)
 
@@ -480,7 +464,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
             "missingFeatures": []
         })
 
-    # 10. Hypothyroidism Risk Model
     reqs = PREDICTION_REQUIREMENTS["Primary_Hypothyroidism"]
     has_reqs = all(dataset.get(r) is not None for r in reqs)
 
@@ -526,7 +509,6 @@ def predict_2year_risks(inputs: dict, derived: dict, patient: dict, diagnoses: l
             "missingFeatures": []
         })
 
-    # 11. Gout Flare Risk Model
     reqs = PREDICTION_REQUIREMENTS["Gout"]
     has_reqs = all(dataset.get(r) is not None for r in reqs)
 
