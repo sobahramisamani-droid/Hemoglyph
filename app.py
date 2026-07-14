@@ -1081,9 +1081,9 @@ elif step == 4:
                         try:
                             v = float(val)
                             if v < low:
-                                abnormal_labs.append(f"{fdata.get('displayEn', key)}: {v} {fdata.get('unit', '')} ⬇️ LOW (normal: {low}-{high})")
+                                abnormal_labs.append(f"{fdata.get('displayEn', key)}: {v} {fdata.get('unit','')} ⬇️ LOW (normal {low}-{high})")
                             elif v > high:
-                                abnormal_labs.append(f"{fdata.get('displayEn', key)}: {v} {fdata.get('unit', '')} ⬆️ HIGH (normal: {low}-{high})")
+                                abnormal_labs.append(f"{fdata.get('displayEn', key)}: {v} {fdata.get('unit','')} ⬆️ HIGH (normal {low}-{high})")
                         except:
                             pass
                         
@@ -1098,121 +1098,66 @@ elif step == 4:
                         compatible.append({
                             "name": d.get("nameEn", ""),
                             "icd10": d.get("icd10", ""),
-                            "evidence": evidence[:3],
-                            "guideline": d.get("guideline", "")
+                            "evidence": evidence[:2]  
                         })
                     elif status == "Insufficient Data":
                         incomplete.append({
                             "name": d.get("nameEn", ""),
-                            "icd10": d.get("icd10", ""),
-                            "missing": d.get("missingFeatures", [])
+                            "icd10": d.get("icd10", "")
                         })
-                    elif status not in ("Evaluated", "AlreadyDiagnosed", "Insufficient Data", "No Input Data"):
+                    else:
                         non_compatible.append({
                             "name": d.get("nameEn", ""),
-                            "icd10": d.get("icd10", ""),
-                            "criteria": d.get("noteEn", "")[:200]
+                            "icd10": d.get("icd10", "")
                         })
 
-                risk_summary = []
+                risk_list = []
                 for r in risks:
                     if r.get("status") in ("Evaluated", "AlreadyDiagnosed"):
-                        risk_summary.append({
-                            "disease": r.get("nameEn", ""),
-                            "probability": f"{round(r.get('probability', 0) * 100, 1)}%",
-                            "level": r.get("riskLevel", "")
-                        })
+                        risk_list.append(f"{r.get('nameEn','')}: {round(r.get('probability',0)*100,1)}% ({r.get('riskLevel','')})")
 
                 prompt = f"""
-        You are a double‑board‑certified Clinical Pathologist and Laboratory Director with 20 years of teaching experience.
-        You are reviewing a patient's complete laboratory profile and creating a detailed, educational consultation report.
+        You are a senior clinical pathologist. Summarize the following patient data into a clear, structured report.
 
-        ### PATIENT PROFILE
-        Age: {patient_info.get('Age')} | Sex: {"Male" if patient_info.get('Sex') == 1 else "Female"}
-        Weight: {patient_info.get('Weight')} kg | Height: {patient_info.get('Height')} cm | BMI: {derived.get('BMI', 'N/A')}
-        Smoking: {"Yes" if patient_info.get('Smoking') == 1 else "No"}
-        Family History DM: {"Yes" if patient_info.get('FamilyHistory_DM') == 1 else "No"} | CAD: {"Yes" if patient_info.get('FamilyHistory_CAD') == 1 else "No"}
+        ### PATIENT
+        Age {patient_info.get('Age')} { "Male" if patient_info.get('Sex')==1 else "Female"}, BMI {derived.get('BMI','N/A')}, Smoking {"Yes" if patient_info.get('Smoking')==1 else "No"}
 
-        ### ABNORMAL LABORATORY VALUES
-        {json.dumps(abnormal_labs, indent=2) if abnormal_labs else "All values within normal range."}
+        ### ABNORMAL LABS
+        {json.dumps(abnormal_labs, indent=2) if abnormal_labs else "None"}
 
         ### DERIVED METRICS
-        eGFR: {derived.get('eGFR', 'N/A')} | HOMA-IR: {derived.get('HOMA_IR', 'N/A')} | ACR: {derived.get('ACR', 'N/A')}
-        BMI: {derived.get('BMI', 'N/A')} | Transferrin Sat: {derived.get('Transferrin_Sat', 'N/A')}%
-        Non-HDL: {derived.get('Non_HDL', 'N/A')} | VLDL: {derived.get('VLDL', 'N/A')}
+        eGFR {derived.get('eGFR','N/A')}, ACR {derived.get('ACR','N/A')}, HOMA-IR {derived.get('HOMA_IR','N/A')}
 
-        ### COMPATIBLE DIAGNOSES (Guideline‑Confirmed)
+        ### COMPATIBLE DISEASES (with evidence)
         {json.dumps(compatible, indent=2) if compatible else "None"}
 
-        ### NON‑COMPATIBLE DIAGNOSES (Ruled Out)
+        ### NON-COMPATIBLE DISEASES (ruled out)
         {json.dumps(non_compatible, indent=2) if non_compatible else "None"}
 
-        ### INCOMPLETE DIAGNOSES (Missing Data)
+        ### INCOMPLETE DISEASES (need more data)
         {json.dumps(incomplete, indent=2) if incomplete else "None"}
 
-        ### 2‑YEAR RISK PREDICTIONS
-        {json.dumps(risk_summary, indent=2) if risk_summary else "No risk predictions available."}
+        ### 2-YEAR RISKS
+        {chr(10).join(risk_list) if risk_list else "Not available"}
 
-        ### YOUR TASK
-        Produce a detailed, narrative‑style medical report with the following sections.
-        For each section, write thorough explanations.
+        **Report structure (be concise):**
+        1. **Compatible diseases** – list each with key supporting lab evidence and a one-line explanation.
+        2. **Ruled‑out diseases** – briefly say why each was ruled out.
+        3. **Missing tests** – what needs to be ordered.
+        4. **Specialists to consult** – name the specialist and the reason.
+        5. **Summary** – 3-4 sentence overall assessment.
 
-        ## 1️⃣ DETAILED ANALYSIS OF COMPATIBLE DIAGNOSES
-        For each compatible disease:
-        - Disease (ICD‑10)
-        - Key Abnormal Values: List each relevant lab result with the patient's exact number, the normal range, and how far it deviates.
-        - Pathophysiology: Explain the biological mechanism that connects the abnormal lab values to the disease.
-        - Clinical Implications: What does this finding mean for the patient's health now and in the future?
-        - Guideline Reference: Mention the specific guideline that defines the criteria.
-        - Suggested Actions: What confirmatory tests, lifestyle changes, or referrals are recommended?
-
-        ## 2️⃣ DETAILED ANALYSIS OF NON‑COMPATIBLE DIAGNOSES
-        For each ruled‑out disease:
-        - Disease (ICD‑10)
-        - Diagnostic Criteria: State the exact criteria required by the guideline.
-        - Why It Was Ruled Out: Explain precisely which criteria were not met, using the patient's actual numbers.
-        - What Would Change the Picture: Under what circumstances might this diagnosis become relevant in the future.
-
-        ## 3️⃣ MISSING DATA — WHAT WE STILL NEED
-        For each disease that could not be fully assessed:
-        - Disease
-        - Missing Laboratory Tests: List the exact missing tests.
-        - Why They Matter: Explain what information those tests would provide.
-
-        ## 4️⃣ RECOMMENDED SPECIALIST REFERRALS
-        Based on the compatible findings, recommend the appropriate specialists. For each:
-        - Specialist (e.g., Endocrinologist, Cardiologist, Nephrologist)
-        - Reasoning: Cite the specific abnormal findings that warrant this referral.
-        - Urgency: Indicate whether the referral should be routine, semi‑urgent, or urgent.
-
-        ## 5️⃣ 2‑YEAR RISK TRAJECTORY INTERPRETATION
-        Explain in detail what the risk predictions mean:
-        - What factors are driving each high risk?
-        - How might lifestyle or medical interventions change these predictions?
-        - What follow‑up monitoring is recommended?
-
-        ## 6️⃣ COMPREHENSIVE CLINICAL SUMMARY
-        Write a thorough summary (8-12 sentences) that:
-        - Synthesises all the above information into a coherent narrative
-        - Highlights the most critical findings
-        - Provides a clear, actionable plan (tests, referrals, lifestyle)
-        - Conveys empathy and reassurance while being honest about health risks
-
-        **CRITICAL RULES:**
-        - Use ONLY the patient's actual laboratory values provided above.
-        - Be precise: always include the patient's result and the normal range when discussing a lab test.
-        - Never diagnose disease conclusively or prescribe medications — always recommend physician consultation.
-        - Write in a professional, educational tone that a patient can understand.
+        Rules: Use real values. Do not invent. Do not diagnose. Be brief.
         """
                 messages = [
-                    {"role": "system", "content": "You are a senior clinical pathologist and laboratory medicine educator. Provide thorough, detailed explanations using the exact patient data provided."},
+                    {"role": "system", "content": "You are a clinical pathologist. Provide a concise, evidence-based report."},
                     {"role": "user", "content": prompt}
                 ]
                 response = client.chat.completions.create(
                     model="llama-3.1-8b-instant",
                     messages=messages,
                     temperature=0.3,
-                    max_tokens=1200
+                    max_tokens=800
                 )
                 return response.choices[0].message.content
             except Exception as e:
