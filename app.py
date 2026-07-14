@@ -1187,7 +1187,7 @@ elif step == 4:
                     model="llama-3.1-8b-instant",
                     messages=messages,
                     temperature=0.3,
-                    max_tokens=800
+                    max_tokens=1200
                 )
                 return response.choices[0].message.content
 
