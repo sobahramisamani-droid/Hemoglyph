@@ -10,24 +10,7 @@ from prediction import predict_2year_risks
 from disease_guidelines import DISEASE_GUIDELINES
 from AI import BloodLabChatbot
 
-st.html("""
-<style>
 
-body{
-    background:red !important;
-}
-
-.stApp{
-    background:red !important;
-}
-
-h1{
-    color:blue !important;
-    font-size:60px !important;
-}
-
-</style>
-""")
 
 st.title("BloodLab")
 st.markdown("""
