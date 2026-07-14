@@ -9,7 +9,12 @@ from interpretation import interpret_lab_data
 from prediction import predict_2year_risks
 from disease_guidelines import DISEASE_GUIDELINES
 from AI import BloodLabChatbot
-
+st.set_page_config(
+    page_title="Hemoglyph",
+    page_icon="🧬",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 
 st.title("BloodLab")
@@ -126,12 +131,7 @@ QUAL_FEATURES = {
     "UrineBlood": ["Negative", "Trace", "Small", "Moderate", "Large"]
 }
 
-st.set_page_config(
-    page_title="Hemoglyph",
-    page_icon="🧬",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+
 
 st.markdown("""
 <style>
