@@ -9,7 +9,6 @@ from interpretation import interpret_lab_data
 from prediction import predict_2year_risks
 from disease_guidelines import DISEASE_GUIDELINES
 from AI import BloodLabChatbot
-import groq
 st.markdown("""
 <style>
     /* Import Vazir font */
@@ -1065,20 +1064,20 @@ elif step == 4:
                     api_key = st.secrets["GROQ_API_KEY"]
                 except (FileNotFoundError, KeyError):
                     return "Groq API key not configured."
-        
+
             try:
                 client = groq.Client(api_key=api_key)
-        
+
                 # Separate diagnoses by status
                 compatible = [d for d in diagnoses if d.get("status") == "Present" or "Compatible" in str(d.get("evidence"))]
                 non_compatible = [d for d in diagnoses if d.get("status") not in ("Present", "Evaluated", "AlreadyDiagnosed") and "Compatible" not in str(d.get("evidence")) and d.get("status") != "Insufficient Data"]
                 incomplete = [d for d in diagnoses if d.get("status") == "Insufficient Data"]
-        
+
                 prompt = f"""
         You are a double‑board‑certified Clinical Pathologist and Laboratory Director with 20 years of teaching experience.
         You are reviewing a patient's complete laboratory profile and creating a detailed, educational consultation report.
         Explain every finding thoroughly, as if you were mentoring a junior doctor.
-        
+
         ### PATIENT PROFILE
         - Age: {patient_info.get('Age')} years
         - Sex: {"Male" if patient_info.get('Sex') == 1 else "Female"}
@@ -1087,29 +1086,29 @@ elif step == 4:
         - Smoking: {"Yes" if patient_info.get('Smoking') == 1 else "No"}
         - Family History DM: {"Yes" if patient_info.get('FamilyHistory_DM') == 1 else "No"}
         - Family History CAD: {"Yes" if patient_info.get('FamilyHistory_CAD') == 1 else "No"}
-        
+
         ### ALL ENTERED LABORATORY VALUES
         {json.dumps(inputs, indent=2)}
-        
+
         ### DERIVED METRICS
         {json.dumps(derived, indent=2)}
-        
+
         ### COMPATIBLE DIAGNOSES (Guideline‑Confirmed)
         {json.dumps(compatible, indent=2) if compatible else "None"}
-        
+
         ### NON‑COMPATIBLE DIAGNOSES (Ruled Out)
         {json.dumps(non_compatible, indent=2) if non_compatible else "None"}
-        
+
         ### INCOMPLETE DIAGNOSES (Missing Data)
         {json.dumps(incomplete, indent=2) if incomplete else "None"}
-        
+
         ### 2‑YEAR RISK PREDICTIONS
         {json.dumps(risks, indent=2)}
-        
+
         ### YOUR TASK
         Produce a **detailed, narrative‑style medical report** with the following sections.
         For each section, write thorough explanations (3-6 sentences per item where applicable).
-        
+
         ## 1️⃣ DETAILED ANALYSIS OF COMPATIBLE DIAGNOSES
         For each compatible disease:
         - **Disease** (ICD‑10)
@@ -1118,39 +1117,39 @@ elif step == 4:
         - **Clinical Implications**: What does this finding mean for the patient’s health now and in the near future?
         - **Guideline Reference**: Mention the specific guideline (e.g., ADA, KDIGO) that defines the criteria.
         - **Suggested Actions**: What confirmatory tests, lifestyle changes, or referrals are typically recommended?
-        
+
         ## 2️⃣ DETAILED ANALYSIS OF NON‑COMPATIBLE DIAGNOSES
         For each ruled‑out disease:
         - **Disease** (ICD‑10)
         - **Diagnostic Criteria**: State the exact criteria required by the guideline.
         - **Why It Was Ruled Out**: Explain precisely which criteria were not met, using the patient’s actual numbers.
         - **What Would Change the Picture**: Under what circumstances (e.g., which labs would need to worsen) might this diagnosis become relevant in the future.
-        
+
         ## 3️⃣ MISSING DATA — WHAT WE STILL NEED
         For each disease that could not be fully assessed:
         - **Disease**
         - **Missing Laboratory Tests**: List the exact missing tests.
         - **Why They Matter**: Explain what information those tests would provide.
-        
+
         ## 4️⃣ RECOMMENDED SPECIALIST REFERRALS
         Based on the compatible findings, recommend the appropriate specialists. For each:
         - **Specialist** (e.g., Endocrinologist, Cardiologist, Nephrologist)
         - **Reasoning**: Cite the specific abnormal findings that warrant this referral.
         - **Urgency**: Indicate whether the referral should be routine, semi‑urgent, or urgent.
-        
+
         ## 5️⃣ 2‑YEAR RISK TRAJECTORY INTERPRETATION
         Explain in detail what the risk predictions mean:
         - What factors are driving each high risk?
         - How might lifestyle or medical interventions change these predictions?
         - What follow‑up monitoring is recommended?
-        
+
         ## 6️⃣ COMPREHENSIVE CLINICAL SUMMARY
         Write a thorough summary (8-12 sentences) that:
         - Synthesises all the above information into a coherent narrative
         - Highlights the most critical findings
         - Provides a clear, actionable plan (tests, referrals, lifestyle)
         - Conveys empathy and reassurance while being honest about health risks
-        
+
         **CRITICAL RULES:**
         - Use ONLY the patient’s actual laboratory values provided above.
         - Be precise: always include the patient’s result and the normal range when discussing a lab test.
@@ -1170,6 +1169,12 @@ elif step == 4:
                 return response.choices[0].message.content
             except Exception as e:
                 return f"Failed to generate AI interpretation: {str(e)}"
+        if st.button(t["generate_expert_btn"], type="primary", use_container_width=True):
+            with st.spinner(t["spinner_expert"]):
+                ai_report = generate_ai_interpretation(patient_prof, clean_inputs, derived_markers, active_diagnoses, risk_predictions)
+                st.markdown(t["expert_report_heading"])
+                st.markdown(ai_report)
+
     with tab5:
         st.markdown(t["chat_heading"])
         st.markdown(t["chat_desc"])
