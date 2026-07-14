@@ -19,166 +19,47 @@ st.markdown("""
     /* Import Vazir font from CDN */
     @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v33.1.0/dist/font-face.css');
 
-    /* Apply Vazir to ALL elements that contain Persian characters */
-    *[lang="fa"],
-    *:has(> *:lang("fa")),
-    .stApp,
-    .stMarkdown,
-    .stText,
-    .stAlert,
-    .stButton,
-    .stChatMessage,
-    .stSelectbox,
-    .stTextInput,
-    .stNumberInput,
-    .stCheckbox,
-    .stExpander,
-    .stDataFrame,
-    .stTabs,
-    .stSidebar,
-    h1, h2, h3, h4, h5, h6,
-    p, span, div, label, button, input, select, textarea,
-    .metric-label, .metric-value {
+    /* فقط برای متن‌های فارسی فونت وزیر اعمال شود */
+    @font-face {
+        font-family: 'Vazir';
+        src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v33.1.0/dist/Vazir.woff2') format('woff2');
+        font-weight: normal;
+        font-style: normal;
+        unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10E60-10E7F, U+1EE00-1EEFF;
+    }
+
+    @font-face {
+        font-family: 'Vazir';
+        src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v33.1.0/dist/Vazir-Bold.woff2') format('woff2');
+        font-weight: bold;
+        font-style: normal;
+        unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10E60-10E7F, U+1EE00-1EEFF;
+    }
+
+    /* تنظیم فونت اصلی برنامه بدون تغییر فونت آیکون‌ها */
+    .stApp, .stMarkdown, .stText, .stAlert, .stButton button,
+    .stChatMessage, .stSelectbox, .stTextInput, .stNumberInput,
+    .stCheckbox, .stExpander, .stDataFrame, .stTabs, .stSidebar,
+    h1, h2, h3, h4, h5, h6, p, span, div:not([class*="icon"]):not([class*="material"]),
+    label, input:not([type="checkbox"]):not([type="radio"]),
+    textarea, .metric-label, .metric-value {
         font-family: 'Vazir', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
     }
 
-    /* Specific font settings for Persian text */
-    * {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* حفظ فونت پیش‌فرض برای آیکون‌ها */
+    [class*="st-emotion-cache"],
+    [data-testid="stDecoration"],
+    [data-testid="stSidebar"],
+    svg, [class*="material-icons"], [class*="icon"] {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
     }
 
-    /* Override with Vazir when Persian characters are present */
-    .stApp * {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 'Vazir', sans-serif !important;
-    }
-
-    /* Ensure Vazir is used for RTL text */
-    [dir="rtl"] {
-        direction: rtl;
-        text-align: right;
-    }
-
-    /* Fix for Persian numbers and characters */
-    body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 'Vazir', sans-serif;
-    }
-
-    /* Specific classes that commonly contain Persian text */
-    .st-emotion-cache-10trblm,
-    .st-emotion-cache-1q8ddzd,
-    .st-emotion-cache-183lzff,
-    .st-emotion-cache-1cvow4s,
-    .st-emotion-cache-16txtl3,
-    .st-emotion-cache-1kyxreq,
-    .st-emotion-cache-1v0mbdj,
-    .st-emotion-cache-1r6slb0,
-    .st-emotion-cache-1xarl3l,
-    .st-emotion-cache-1wmy9hl,
-    .st-emotion-cache-1avcm0n,
-    .st-emotion-cache-1f3w014,
-    .st-emotion-cache-1vtueo4,
-    .st-emotion-cache-1v7uza4,
-    .st-emotion-cache-1l6ema2,
-    .st-emotion-cache-1dp5m8t,
-    .st-emotion-cache-1hskb1m,
-    .st-emotion-cache-1v02s4x,
-    .st-emotion-cache-1n76nqr,
-    .st-emotion-cache-1o3jp5z,
-    .st-emotion-cache-1p1m4ay,
-    .st-emotion-cache-1p8iqe6,
-    .st-emotion-cache-1p4g8p1,
-    .st-emotion-cache-1p5wlh4,
-    .st-emotion-cache-1p6s9q4 {
-        font-family: 'Vazir', 'Inter', sans-serif !important;
-    }
-
-    /* Make Persian text slightly larger for better readability */
-    .persian-text {
+    /* اعمال فونت وزیر روی متن‌های فارسی داخل المان‌ها */
+    *:lang(fa), [lang="fa"], .persian-text,
+    div:has(> [lang="fa"]),
+    p:has(> [lang="fa"]),
+    span:has(> [lang="fa"]) {
         font-family: 'Vazir', sans-serif !important;
-        font-size: 1.05em !important;
-        line-height: 1.8 !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-PROFILE_KEYS = [
-    "Age", "Sex", "Weight", "Height", "Waist", "Systolic_BP", "Diastolic_BP",
-    "HeartRate", "SleepHours", "Smoking", "PhysicalActivity",
-    "FamilyHistory_DM", "FamilyHistory_CAD", "FamilyHistory_HTN", "FamilyHistory_Obesity"
-]
-
-QUAL_FEATURES = {
-    "UrineNitrite": ["Negative", "Positive"],
-    "UrineLeukocyteEsterase": ["Negative", "Positive"],
-    "HBsAg": ["Negative", "Positive"],
-    "HBeAg": ["Negative", "Positive"],
-    "Anti_HCV": ["Negative", "Positive"],
-    "HIV_AgAb": ["Negative", "Positive"],
-    "RPR": ["Negative", "Positive"],
-    "TPPA": ["Negative", "Positive"],
-    "DAT": ["Negative", "Positive"],
-    "Lupus_Anticoagulant": ["Negative", "Positive"],
-    "ANCA": ["Negative", "Positive"],
-    "Anti_HBc": ["Negative", "Positive"],
-    "Anti_HBe": ["Negative", "Positive"],
-    "ENA_Panel": ["Negative", "Positive"],
-    "UrineProteinQualitative": ["Negative", "Trace", "1+", "2+", "3+", "4+"],
-    "UrineGlucoseQualitative": ["Negative", "Trace", "1+", "2+", "3+", "4+"],
-    "UrineKetones": ["Negative", "Trace", "Small", "Moderate", "Large"],
-    "UrineBlood": ["Negative", "Trace", "Small", "Moderate", "Large"]
-}
-
-st.set_page_config(
-    page_title="Clinical Laboratory AI Assistant",
-    page_icon="🧬",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-st.markdown("""
-<style>
-    .stApp {
-        background-color: #f8fafc;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-    h1, h2, h3, h4, h5 {
-        color: #0f172a !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.025em;
-    }
-    .clinical-card {
-        background-color: #ffffff;
-        padding: 24px;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.02);
-        margin-bottom: 20px;
-    }
-    .diagnosis-badge-present {
-        background-color: #fef2f2;
-        border: 1px solid #fecaca;
-        color: #991b1b;
-        padding: 16px 20px;
-        border-radius: 8px;
-        margin-bottom: 12px;
-    }
-    .diagnosis-badge-absent {
-        background-color: #f0fdf4;
-        border: 1px solid #bbf7d0;
-        color: #166534;
-        padding: 16px 20px;
-        border-radius: 8px;
-        margin-bottom: 12px;
-    }
-    .metric-value {
-        font-size: 24px;
-        font-weight: 700;
-        color: #1e293b;
-    }
-    .metric-label {
-        font-size: 13px;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
     }
 </style>
 """, unsafe_allow_html=True)
