@@ -1,4 +1,3 @@
-
 import os
 import logging
 from dotenv import load_dotenv
@@ -18,7 +17,7 @@ class BloodLabChatbot:
 1. State the finding clearly with the patient's actual lab values
 2. Reference the specific guideline criteria that support or rule out the finding
 3. If asked about specialists, recommend the appropriate specialist type
-4. Keep answers concise but evidence-based
+4. Keep answers concise but evidence‑based
 
 **Rules:**
 - Only answer about the patient's lab results, medical conditions, or risk predictions
@@ -26,6 +25,21 @@ class BloodLabChatbot:
 - Never invent lab values — use only data from the provided context
 - Never diagnose or prescribe medication
 - Always recommend consulting a physician"""
+
+    PERSIAN_SYSTEM_INSTRUCTION = """تو **دستیار هوشمند BloodLab** هستی، یک هوش مصنوعی تخصصی پزشکی که فقط به سوالات مربوط به نتایج آزمایش خون پاسخ می‌دهد.
+
+**قالب پاسخ برای سوالات درباره بیماری‌ها یا یافته‌ها:**
+۱. یافته را با استفاده از مقادیر واقعی آزمایش بیمار به وضوح بیان کن.
+۲. به معیارهای راهنمای بالینی مشخصی که یافته را تأیید یا رد می‌کند ارجاع بده.
+۳. اگر درباره متخصصان سوال شد، نوع متخصص مناسب را توصیه کن.
+۴. پاسخ‌ها را مختصر اما مبتنی بر شواهد نگه دار.
+
+**قوانین:**
+- فقط درباره نتایج آزمایش بیمار، شرایط پزشکی یا پیش‌بینی‌های ریسک پاسخ بده.
+- اگر کاربر سوال نامرتبط پرسید، بگو: «من فقط می‌توانم به سوالات مربوط به تحلیل آزمایش شما پاسخ دهم.»
+- هرگز مقادیر آزمایشی را از خودت اختراع نکن — فقط از داده‌های موجود در context استفاده کن.
+- هرگز بیماری را تشخیص نده یا دارو تجویز نکن.
+- همیشه مراجعه به پزشک را توصیه کن."""
 
     MAX_QUESTIONS = 15
     KEEP_LAST_MESSAGES = 8
@@ -140,25 +154,23 @@ class BloodLabChatbot:
         lang = st.session_state.get("lang", "en")
 
         if lang == "fa":
-            strict_lang_order = (
-                "**CRITICAL: YOU MUST ANSWER ONLY IN PERSIAN (FARSI). "
-                "DO NOT USE ENGLISH. EVEN IF THE DATA IS IN ENGLISH, YOUR RESPONSE MUST BE IN PERSIAN.**"
-            )
+            base_system = self.PERSIAN_SYSTEM_INSTRUCTION
             user_prompt = (
                 "لطفاً یک خلاصهٔ مختصر و مفید از نتایج آزمایش من به زبان فارسی ارائه دهید. "
                 "مهم‌ترین یافته‌های غیرطبیعی، بیماری‌های سازگار با گایدلاین‌ها "
                 "و پیش‌بینی‌های ریسک ۲ ساله را ذکر کنید. "
                 "پاسخ باید ساده و قابل فهم برای یک فرد غیرپزشکی باشد."
             )
-            system_content = f"{strict_lang_order}\n\n{self.SYSTEM_INSTRUCTION}\n\n{self.patient_context}"
         else:
+            base_system = self.SYSTEM_INSTRUCTION
             user_prompt = (
                 "Please provide a brief, friendly summary of my laboratory results, "
                 "highlighting the most important abnormal findings, compatible guideline-based "
                 "conditions, and any significant 2-year risk predictions. "
                 "Keep it understandable for a non-medical person."
             )
-            system_content = f"{self.SYSTEM_INSTRUCTION}\n\n{self.patient_context}"
+
+        system_content = f"{base_system}\n\n{self.patient_context}"
 
         messages = [
             {"role": "system", "content": system_content},
@@ -168,26 +180,29 @@ class BloodLabChatbot:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=0.0,         
+                temperature=0.0,
                 max_tokens=400
             )
             return response.choices[0].message.content
         except Exception as e:
             logger.warning(f"generate_initial_summary failed: {e}")
             return "I'm sorry, I couldn't generate the summary." if lang == "en" else "متأسفانه نتوانستم خلاصه را تولید کنم."
+
     def chat(self, user_message: str) -> str:
         if self.question_count >= self.MAX_QUESTIONS:
             return "You have reached the maximum number of questions for this session. Please consult your physician for further information."
 
         self.question_count += 1
 
-        messages = [{"role": "system", "content": self.SYSTEM_INSTRUCTION}]
-
         lang = st.session_state.get("lang", "en")
+        base_system = self.PERSIAN_SYSTEM_INSTRUCTION if lang == "fa" else self.SYSTEM_INSTRUCTION
+
+        messages = [{"role": "system", "content": base_system}]
+
         if lang == "fa":
-            messages.append({"role": "system", "content": "از این پس تمام پاسخ‌های خود را فقط به فارسی بنویس."})
+            messages.append({"role": "system", "content": "تمام پاسخ‌هایت را فقط به فارسی بده."})
         else:
-            messages.append({"role": "system", "content": "From now on, answer only in English."})
+            messages.append({"role": "system", "content": "Answer only in English."})
 
         if self.patient_context:
             messages.append({
@@ -205,7 +220,7 @@ class BloodLabChatbot:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=0.1,
+                temperature=0.0,
                 max_tokens=300
             )
             reply = response.choices[0].message.content
