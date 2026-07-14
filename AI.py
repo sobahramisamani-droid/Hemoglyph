@@ -17,17 +17,16 @@ class BloodLabChatbot:
 1. State the finding clearly with the patient's actual lab values
 2. Reference the specific guideline criteria that support or rule out the finding
 3. If asked about specialists, recommend the appropriate specialist type
-4. Keep answers concise but evidence‑based
+4. Keep answers concise but evidence-based
 
 **Rules:**
 - Only answer about the patient's lab results, medical conditions, or risk predictions
 - If asked about unrelated topics, reply: "I can only answer questions related to your laboratory analysis."
 - Never invent lab values — use only data from the provided context
 - Never diagnose or prescribe medication
-- Always recommend consulting a physician
-- Answer in the same language the user writes in (English or Persian)"""
+- Always recommend consulting a physician"""
 
-    MAX_QUESTIONS = 15
+    MAX_QUESTIONS = 15       
     KEEP_LAST_MESSAGES = 8
     MAX_NORMAL_VALUES = 3
 
@@ -137,68 +136,21 @@ class BloodLabChatbot:
         if not self.patient_context:
             raise ValueError("Patient context has not been set.")
 
-        prompt = (
-            "You are a senior clinical laboratory scientist and educator. "
-            "Based on the patient's complete laboratory data provided above, "
-            "create a thorough, detailed medical summary. "
-            "The summary must be educational and explain each finding clearly, "
-            "as if you were teaching a medical student. "
-            "Use the following structure, and write at least 3-4 sentences for each disease mentioned:\n\n"
-
-            "## 📋 COMPATIBLE FINDINGS – DETAILED EVIDENCE REVIEW\n"
-            "For each compatible disease, explain:\n"
-            "- **Disease name** and ICD‑10\n"
-            "- **Which laboratory values are abnormal** (provide the patient’s exact result and the normal range)\n"
-            "- **Why these abnormalities support the diagnosis** – describe the underlying pathophysiology in simple terms\n"
-            "- **Clinical significance** – what this finding means for the patient’s health\n"
-            "- **Typical next steps** (e.g., confirmatory tests, lifestyle changes, specialist referral)\n\n"
-
-            "## ❌ NON‑COMPATIBLE FINDINGS – WHY THEY WERE RULED OUT\n"
-            "For each disease that was considered but not confirmed, explain in detail:\n"
-            "- **Disease name** and ICD‑10\n"
-            "- **Which diagnostic criteria were NOT met** (e.g., “Hb is 13.8 g/dL, but the guideline requires <12.0 g/dL”)\n"
-            "- **Why the patient’s specific values exclude this diagnosis**\n"
-            "- **What would have to change** for the diagnosis to be considered in the future\n\n"
-
-            "## 🔬 MISSING DATA – WHAT TESTS ARE STILL NEEDED\n"
-            "For any disease that could not be fully evaluated, list:\n"
-            "- **Disease name**\n"
-            "- **Exactly which lab tests are missing**\n"
-            "- **Why those tests are necessary** for a definitive conclusion\n\n"
-
-            "## 🩺 RECOMMENDED MEDICAL SPECIALISTS\n"
-            "Based on the compatible findings, recommend the most relevant specialists. For each:\n"
-            "- **Specialist type** (e.g., Endocrinologist, Cardiologist, Nephrologist)\n"
-            "- **Reason for referral** – explain why this specialist is needed, referencing the specific lab abnormalities\n"
-            "- **Urgency** (routine vs. urgent)\n\n"
-
-            "## 📝 OVERALL CLINICAL SUMMARY\n"
-            "Write a comprehensive summary (at least 8-10 sentences) that:\n"
-            "- Integrates all the major findings\n"
-            "- Highlights the most critical health risks\n"
-            "- Suggests a logical sequence of actions (lifestyle, follow-up tests, consultations)\n"
-            "- Reassures the patient where possible, but is honest about serious findings\n\n"
-
-            "IMPORTANT RULES:\n"
-            "- Always use the patient’s actual laboratory values from the context above.\n"
-            "- Never invent numbers. If a value is missing, state that it is unavailable.\n"
-            "- Write in a professional yet friendly tone, as if explaining to a patient who wants to understand their health deeply.\n"
-            "- Do NOT diagnose diseases or prescribe medications. Always recommend consulting a physician."
-        )
+        messages = [
+            {"role": "system", "content": self.SYSTEM_INSTRUCTION + "\n\n" + self.patient_context},
+            {"role": "user", "content": "Please provide a brief, friendly summary of my laboratory results, highlighting the most important abnormal findings, compatible guideline-based conditions, and any significant 2-year risk predictions. Keep it understandable for a non-medical person."}
+        ]
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
-                messages=[
-                    {"role": "system", "content": self.SYSTEM_INSTRUCTION + "\n\n" + self.patient_context},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3,
-                max_tokens=1000
+                messages=messages,
+                temperature=0.1,
+                max_tokens=400
             )
             return response.choices[0].message.content
         except Exception as e:
             logger.warning(f"generate_initial_summary failed: {e}")
-            return "I'm sorry, I couldn't generate the summary."
+            return "I'm sorry, I couldn't generate the summary. Please check your API key and try again."
 
     def chat(self, user_message: str) -> str:
         if self.question_count >= self.MAX_QUESTIONS:
@@ -224,8 +176,8 @@ class BloodLabChatbot:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=0.4,
-                max_tokens=600
+                temperature=0.1,
+                max_tokens=300
             )
             reply = response.choices[0].message.content
         except Exception as e:
