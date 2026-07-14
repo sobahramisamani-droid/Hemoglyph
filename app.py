@@ -1187,7 +1187,7 @@ elif step == 4:
                     model="llama-3.1-8b-instant",
                     messages=messages,
                     temperature=0.3,
-                    max_tokens=1200
+                    max_tokens=800
                 )
                 return response.choices[0].message.content
 
@@ -1205,7 +1205,14 @@ elif step == 4:
 
         if "initial_summary" in st.session_state:
             st.info(t["chat_summary_info"])
-            st.markdown(st.session_state.initial_summary)
+            summary_text = st.session_state.initial_summary
+            if st.session_state.lang == "fa":
+                st.markdown(
+                    f'<div style="direction: rtl; text-align: justify; font-family: Vazir, sans-serif;">{summary_text}</div>',
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown(summary_text)
 
         for msg in chatbot.history:
             with st.chat_message(msg["role"]):
