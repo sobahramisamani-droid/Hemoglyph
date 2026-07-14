@@ -1,7 +1,4 @@
-# disease_guidelines.py
-
 DISEASE_GUIDELINES = [
-    # --- CBC AND DIFFERENTIAL ---
     {
         "category": "CBC And Differential",
         "name": "Iron deficiency anemia",
@@ -202,8 +199,6 @@ DISEASE_GUIDELINES = [
         "guideline": "WHO 2016 Guidelines",
         "criteria": "Sustained high Hemoglobin (> 18.5 g/dL in males, > 16.5 in females) and Hct with RBC elevation. Highly suggestive of primary polycythemia; requires JAK2 mutation screening."
     },
-
-    # --- IRON, VITAMIN, AND NUTRITION ---
     {
         "category": "Iron, Vitamin, and Nutrition Panels",
         "name": "Iron deficiency without anemia",
@@ -256,7 +251,7 @@ DISEASE_GUIDELINES = [
         "category": "Iron, Vitamin, and Nutrition Panels",
         "name": "Copper deficiency",
         "icd10": "E61.0",
-        "required_features": ["Hb", "ANC"],      # ← now includes ANC
+        "required_features": ["Hb", "ANC"],    
         "guideline": "Hematology Consensus",
         "criteria": "Presents as microcytic/normocytic anemia and neutropenia mimicking myelodysplasia, secondary to low copper cofactor stores."
     },
@@ -324,8 +319,6 @@ DISEASE_GUIDELINES = [
         "guideline": "ASPEN / ESPEN Guidelines",
         "criteria": "Sustained hypoproteinemia and weight loss, characterized by low Prealbumin (< 10 mg/dL) reflecting long-term negative nitrogen balance."
     },
-
-    # --- THYROID AND ENDOCRINE ---
     {
         "category": "Thyroid and Endocrine Panels",
         "name": "Primary hypothyroidism",
@@ -470,8 +463,6 @@ DISEASE_GUIDELINES = [
         "guideline": "Endocrine Society 2018",
         "criteria": "Enzymatic blockade leading to hypocortisolemia, elevated 17-OHP, and androgen excess."
     },
-
-    # --- DIABETES AND METABOLIC ---
     {
         "category": "Diabetes and Metabolic Panels",
         "name": "Prediabetes",
@@ -560,8 +551,6 @@ DISEASE_GUIDELINES = [
         "guideline": "ADA / ACC Guidelines",
         "criteria": "Diabetic patients with characteristically high Triglycerides (> 150 mg/dL), low HDL-C (< 40 mg/dL in males, < 50 mg/dL in females), and dense LDL particles."
     },
-
-    # --- LIPID PANELS ---
     {
         "category": "Lipid Panels",
         "name": "Hypercholesterolemia",
@@ -804,8 +793,6 @@ DISEASE_GUIDELINES = [
         "guideline": "KDIGO Guidelines",
         "criteria": "Glomerular filtration rate eGFR < 15 mL/min/1.73m² (CKD Stage G5), requiring renal replacement therapy (dialysis or transplantation)."
     },
-
-    # --- LIVER FUNCTION AND HEPATITIS ---
     {
         "category": "Liver Function and Hepatitis Panels",
         "name": "Acute viral hepatitis",
@@ -1104,8 +1091,6 @@ DISEASE_GUIDELINES = [
         "guideline": "Clinical Consensus",
         "criteria": "Normal anion gap metabolic acidosis caused by defective renal acidification in the presence of normal glomerular clearance."
     },
-
-    # --- BONE AND MINERAL ---
     {
         "category": "Bone and Mineral Panels",
         "name": "Primary hyperparathyroidism",
@@ -1178,8 +1163,6 @@ DISEASE_GUIDELINES = [
         "guideline": "KDIGO Guidelines",
         "criteria": "Bone pathology in advanced CKD, driven by systemic phosphate retention and abnormal osteoid mineralization."
     },
-
-    # --- CARDIAC BIOMARKER ---
     {
         "category": "Cardiac Biomarker Panels",
         "name": "Acute myocardial infarction",
@@ -1196,8 +1179,6 @@ DISEASE_GUIDELINES = [
         "guideline": "ESC 2021 Guidelines",
         "criteria": "Ventricular stretch pathology supported by elevated Serum BNP (> 100 pg/mL) or NT-proBNP (> 125 pg/mL)."
     },
-
-    # --- COAGULATION ---
     {
         "category": "Coagulation Panels",
         "name": "Disseminated intravascular coagulation",
@@ -1206,8 +1187,6 @@ DISEASE_GUIDELINES = [
         "guideline": "ISTH DIC Score",
         "criteria": "Systemic coagulation activation presenting as severe thrombocytopenia, prolonged INR, low Fibrinogen (< 150 mg/dL), and critical D-Dimer elevation."
     },
-
-    # --- INFLAMMATORY ---
     {
         "category": "Inflammatory Panels",
         "name": "Acute bacterial infection",
@@ -1224,8 +1203,6 @@ DISEASE_GUIDELINES = [
         "guideline": "Clinical Consensus",
         "criteria": "Normal or low total WBC count alongside lymphocytosis (> 45%)."
     },
-
-    # --- AUTOIMMUNE AND RHEUMATOLOGY ---
     {
         "category": "Autoimmune and Rheumatology Panels",
         "name": "Systemic lupus erythematosus",
@@ -1252,8 +1229,6 @@ DISEASE_GUIDELINES = [
         "guideline": "Atlanta 2012 Classification",
         "criteria": "Severe epigastric pain radiating to the back with serum Lipase or Amylase levels elevated to >= 3 times the upper limit of normal."
     },
-
-    # --- URINALYSIS ---
     {
         "category": "Urinalysis Panels",
         "name": "Urinary tract infection",
@@ -1262,8 +1237,6 @@ DISEASE_GUIDELINES = [
         "guideline": "IDSA Guidelines",
         "criteria": "Positive nitrite, positive leukocyte esterase in raw urine, and pyuria (Urine WBC > 5 /hpf) with dysuria."
     },
-
-    # --- TUMOR MARKER ---
     {
         "category": "Tumor Marker Panels",
         "name": "Prostate cancer (Suspected)",
@@ -1272,8 +1245,6 @@ DISEASE_GUIDELINES = [
         "guideline": "NCCN Guidelines",
         "criteria": "Total Serum PSA exceeding age-specific reference limits (generally > 4.0 ng/mL), requiring digital rectal exam and core biopsy."
     },
-
-    # --- MICRONUTRIENT ---
     {
         "category": "Micronutrient Panels",
         "name": "Selenium deficiency",
@@ -2046,5 +2017,4 @@ DISEASE_GUIDELINES = [
     }
 ]
 
-# Quick indexing
 DISEASE_GUIDELINES_MAP = {d["name"]: d for d in DISEASE_GUIDELINES}
