@@ -1197,7 +1197,13 @@ elif step == 4:
             with st.spinner(t["spinner_expert"]):
                 ai_report = generate_ai_interpretation(patient_prof, clean_inputs, derived_markers, active_diagnoses, risk_predictions)
                 st.markdown(t["expert_report_heading"])
-                st.markdown(ai_report)
+                if st.session_state.lang == "fa":
+                    st.markdown(
+                        f'<div style="direction: rtl; text-align: justify; font-family: Vazir, sans-serif;">{ai_report}</div>',
+                        unsafe_allow_html=True
+                    )
+                else:
+                    st.markdown(ai_report)
 
     with tab5:
         st.markdown(t["chat_heading"])
