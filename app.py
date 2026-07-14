@@ -911,7 +911,7 @@ Maintain an authoritative, precise, yet compassionate professional medical tone.
                     {"role": "user", "content": prompt}
                 ]
                 response = client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
+                    model="llama-3.3-70b-versatile",
                     messages=messages,
                     temperature=0.2,
                     max_tokens=800
