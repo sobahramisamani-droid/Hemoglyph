@@ -1,5 +1,3 @@
-# interpretation.py
-
 from disease_guidelines import DISEASE_GUIDELINES
 from clinical_data import FEATURE_REGISTRY
 
@@ -11,7 +9,7 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
     results = []
     # Diseases that have explicit rules (the large if/elif chain)
     EXPLICIT_RULE_DISEASES = {
-        # 1. CBC AND DIFFERENTIAL
+        # 1
         "Iron deficiency anemia", "Anemia of chronic disease", "Thalassemia trait",
         "Sideroblastic anemia", "Hemolytic anemia", "Aplastic anemia",
         "Acute blood loss anemia", "Megaloblastic anemia", "Vitamin B12 deficiency anemia",
@@ -20,13 +18,13 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
         "Leukopenia", "Neutropenia", "Lymphocytosis", "Eosinophilia", "Basophilia",
         "Monocytosis", "Thrombocytopenia", "Immune thrombocytopenia", "Thrombocytosis",
         "Polycythemia vera",
-        # 2. IRON, VITAMIN, AND NUTRITION
+        # 2
         "Iron deficiency without anemia", "Functional iron deficiency", "Iron overload",
         "Hereditary hemochromatosis", "Vitamin B12 deficiency", "Folate deficiency",
         "Copper deficiency", "Zinc deficiency", "Vitamin D deficiency", "Vitamin K deficiency",
         "Protein-energy malnutrition", "Sarcopenia", "Cachexia", "Refeeding syndrome",
         "Chronic malnutrition",
-        # 3. THYROID AND ENDOCRINE
+        # 3
         "Primary hypothyroidism", "Subclinical hypothyroidism", "Secondary hypothyroidism",
         "Hyperthyroidism", "Subclinical hyperthyroidism", "Graves disease",
         "Hashimoto thyroiditis", "Thyroiditis", "Central adrenal insufficiency",
@@ -34,17 +32,17 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
         "Acromegaly", "Growth hormone deficiency", "Hypogonadism",
         "Polycystic ovary syndrome", "Menopause-related endocrine dysfunction",
         "Congenital adrenal hyperplasia",
-        # 4. DIABETES AND METABOLIC
+        # 4
         "Prediabetes", "Type 2 diabetes mellitus", "Type 1 diabetes mellitus",
         "Gestational diabetes", "Diabetic ketoacidosis", "Hyperosmolar hyperglycemic state",
         "Insulin resistance syndrome", "Metabolic syndrome", "Reactive hypoglycemia",
         "Fasting hypoglycemia", "Dyslipidemia of diabetes",
-        # 5. LIPID PANELS
+        # 5
         "Hypercholesterolemia", "Hypertriglyceridemia", "Mixed dyslipidemia",
         "Familial hypercholesterolemia", "Familial combined hyperlipidemia",
         "Familial chylomicronemia syndrome", "Remnant cholesterol excess",
         "Atherogenic dyslipidemia", "Severe hypertriglyceridemia", "Low HDL syndrome",
-        # 6. RENAL FUNCTION AND URINE PROTEIN
+        # 6
         "Chronic kidney disease", "Diabetic kidney disease", "Hypertensive nephropathy",
         "Acute kidney injury", "Glomerulonephritis", "Nephrotic syndrome",
         "Nephritic syndrome", "IgA nephropathy", "Lupus nephritis",
@@ -52,7 +50,7 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
         "Membranous nephropathy", "Acute tubular necrosis", "Interstitial nephritis",
         "Polycystic kidney disease", "Albuminuria", "Proteinuria",
         "Nephrotic-range proteinuria", "Uremia", "End-stage kidney disease",
-        # 7. LIVER FUNCTION AND HEPATITIS
+        # 7
         "Acute viral hepatitis", "Chronic hepatitis B", "Chronic hepatitis C",
         "Hepatitis C infection",  # because of 'or' condition
         "Nonalcoholic fatty liver disease",
@@ -61,42 +59,41 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
         "Drug-induced liver injury", "Cholestatic liver disease", "Autoimmune hepatitis",
         "Primary biliary cholangitis", "Cirrhosis", "Acute liver failure",
         "Hepatic synthetic dysfunction", "Obstructive jaundice",
-        # 8. ELECTROLYTE AND ACID–BASE
+        # 8
         "Hyponatremia", "Hypernatremia", "Hypokalemia", "Hyperkalemia",
         "Hypocalcemia", "Hypercalcemia", "Hypomagnesemia", "Hypermagnesemia",
         "Hypophosphatemia", "Hyperphosphatemia", "Metabolic acidosis",
         "Metabolic alkalosis", "Respiratory acidosis", "Respiratory alkalosis",
         "High anion gap acidosis", "SIADH",
         "Syndrome of inappropriate antidiuretic hormone secretion",
-        # 9. BONE AND MINERAL
+        # 9
         "Primary hyperparathyroidism", "Secondary hyperparathyroidism",
         "Hypoparathyroidism", "Osteomalacia", "Rickets", "Paget disease of bone",
-        # 10. CARDIAC BIOMARKERS
+        # 10
         "Acute myocardial infarction", "Heart failure", "Acute decompensated heart failure",
         "Myocardial injury", "Myocarditis", "Cardiorenal syndrome", "Stress cardiomyopathy",
-        # 11. COAGULATION
+        # 11
         "Disseminated intravascular coagulation", "Venous thromboembolism",
         "Deep vein thrombosis", "Pulmonary embolism", "Liver-related coagulopathy",
         "Vitamin K deficiency coagulopathy", "Consumptive coagulopathy", "Hypercoagulable state",
-        # 12. INFLAMMATORY
+        # 12
         "Acute bacterial infection", "Viral infection", "Sepsis",
-        # 13. AUTOIMMUNE AND RHEUMATOLOGY
+        # 13
         "Systemic lupus erythematosus", "Rheumatoid arthritis", "Sjögren syndrome",
         "Systemic sclerosis", "Mixed connective tissue disease", "Antiphospholipid syndrome",
         "ANCA-associated vasculitis", "Dermatomyositis", "Polymyositis",
         "Undifferentiated connective tissue disease", "Autoimmune thyroid disease",
         "Autoimmune liver disease",
-        # 14. PANCREATIC
+        # 14
         "Acute pancreatitis", "Chronic pancreatitis", "Pancreatic exocrine dysfunction",
         "Pancreaticobiliary inflammation",
-        # 15. URINALYSIS
+        # 15
         "Urinary tract infection", "Hematuria syndrome", "Pyuria", "Crystalluria",
         "Glucosuria", "Ketonuria", "Tubular injury pattern", "Cast-associated renal disease",
-        # 16. ADDITIONAL HIGH-YIELD
+        # 16
         "Gout", "Hyperuricemia", "Pseudohyperkalemia", "Pseudohyponatremia",
         "Factitious hypoglycemia", "Rhabdomyolysis", "Tumor lysis syndrome"
     }
-    # Safe conversion helpers
     def get_num(key, default=None):
         val = dataset.get(key)
         if val is None:
@@ -115,22 +112,16 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
     def is_positive(s):
         return s.lower() in ["positive", "reactive", "yes", "true", "1", "small", "moderate", "large"]
 
-    # Define diagnostic rule checks for ALL mapped diseases
     for disease in DISEASE_GUIDELINES:
         name = disease["name"]
         required = disease["required_features"]
 
-        # Check if ALL required features are entered
         has_required = all(dataset.get(feat) is not None for feat in required)
         if not has_required:
             continue
 
         is_present = False
         evidence = []
-
-        # ---------------------------------------------------------------
-        # 1. CBC AND DIFFERENTIAL
-        # ---------------------------------------------------------------
         if name == "Iron deficiency anemia":
             hb = get_num("Hb")
             mcv = get_num("MCV")
@@ -374,10 +365,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
             if hb > hb_th and hct > hct_th and rbc > 5.5:
                 is_present = True
                 evidence.append(f"Erythrocytosis: Hb {hb} g/dL (> {hb_th}), Hct {hct}%, RBC {rbc}")
-
-        # ---------------------------------------------------------------
-        # 2. IRON, VITAMIN, AND NUTRITION
-        # ---------------------------------------------------------------
         elif name == "Iron deficiency without anemia":
             ferritin = get_num("Ferritin")
             hb = get_num("Hb")
@@ -488,9 +475,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"Alb {alb} g/dL, Prealb {prealb} mg/dL")
 
-        # ---------------------------------------------------------------
-        # 3. THYROID AND ENDOCRINE
-        # ---------------------------------------------------------------
         elif name == "Primary hypothyroidism":
             tsh = get_num("TSH")
             ft4 = get_num("FreeT4")
@@ -624,9 +608,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"Cortisol {cort} µg/dL (<5.0)")
 
-        # ---------------------------------------------------------------
-        # 4. DIABETES AND METABOLIC
-        # ---------------------------------------------------------------
         elif name == "Prediabetes":
             fbs = get_num("FBS")
             hba1c = get_num("HbA1c")
@@ -715,9 +696,7 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"HbA1c {hba1c}%, TG {tg} mg/dL, HDL {hdl} mg/dL")
 
-        # ---------------------------------------------------------------
-        # 5. LIPID PANELS
-        # ---------------------------------------------------------------
+
         elif name == "Hypercholesterolemia":
             tc = get_num("Total_Cholesterol")
             if tc >= 200:
@@ -788,9 +767,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"HDL {hdl} mg/dL (< {hdl_th})")
 
-        # ---------------------------------------------------------------
-        # 6. RENAL FUNCTION AND URINE PROTEIN
-        # ---------------------------------------------------------------
         elif name == "Chronic kidney disease":
             egfr = get_num("eGFR")
             if egfr < 60:
@@ -931,9 +907,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"eGFR {egfr} mL/min/1.73m² (<15)")
 
-        # ---------------------------------------------------------------
-        # 7. LIVER FUNCTION AND HEPATITIS
-        # ---------------------------------------------------------------
         elif name == "Acute viral hepatitis":
             alt = get_num("ALT")
             ast = get_num("AST")
@@ -1047,9 +1020,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"TBil {t_bil}, DBil {d_bil}, ALP {alp}")
 
-        # ---------------------------------------------------------------
-        # 8. ELECTROLYTE AND ACID–BASE PANELS
-        # ---------------------------------------------------------------
         elif name == "Hyponatremia":
             na = get_num("Sodium")
             if na < 135:
@@ -1151,9 +1121,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"Hyponatremia {na} mmol/L, high USG {usg}")
 
-        # ---------------------------------------------------------------
-        # 9. BONE AND MINERAL
-        # ---------------------------------------------------------------
         elif name == "Primary hyperparathyroidism":
             ca = get_num("Calcium")
             pth = get_num("PTH")
@@ -1196,9 +1163,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"ALP {alp} U/L, normal Ca {ca}")
 
-        # ---------------------------------------------------------------
-        # 10. CARDIAC BIOMARKERS
-        # ---------------------------------------------------------------
         elif name == "Acute myocardial infarction":
             trop = get_num("Troponin")
             ck_mb = get_num("CK_MB")
@@ -1248,9 +1212,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"Mild Trop {trop}, high BNP {bnp}")
 
-        # ---------------------------------------------------------------
-        # 11. COAGULATION
-        # ---------------------------------------------------------------
         elif name == "Disseminated intravascular coagulation":
             plt = get_num("Platelet")
             inr = get_num("INR")
@@ -1303,9 +1264,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"Plt {plt}, D‑dimer {dd}")
 
-        # ---------------------------------------------------------------
-        # 12. INFLAMMATORY
-        # ---------------------------------------------------------------
         elif name == "Acute bacterial infection":
             wbc = get_num("WBC")
             neut = get_num("NeutrophilsPercent")
@@ -1330,9 +1288,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"Lactate {lactate}, CRP {crp}, WBC {wbc}, Plt {plt}")
 
-        # ---------------------------------------------------------------
-        # 13. AUTOIMMUNE AND RHEUMATOLOGY
-        # ---------------------------------------------------------------
         elif name == "Systemic lupus erythematosus":
             ana = get_num("ANA")
             dsdna = get_num("Anti_dsDNA")
@@ -1424,9 +1379,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"ANA {ana}, ALT {alt}")
 
-        # ---------------------------------------------------------------
-        # 14. PANCREATIC
-        # ---------------------------------------------------------------
         elif name == "Acute pancreatitis":
             lip = get_num("Lipase") or get_num("Amylase", 0)
             if lip > 180:
@@ -1454,9 +1406,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"Amylase {amy}, ALT {alt}, ALP {alp}")
 
-        # ---------------------------------------------------------------
-        # 15. URINALYSIS
-        # ---------------------------------------------------------------
         elif name == "Urinary tract infection":
             nit = get_str("UrineNitrite")
             le = get_str("UrineLeukocyteEsterase")
@@ -1511,9 +1460,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"Protein casts, Creatinine {cr}")
 
-        # ---------------------------------------------------------------
-        # 16. ADDITIONAL HIGH-YIELD DISEASES
-        # ---------------------------------------------------------------
         elif name == "Gout":
             uric = get_num("Uric_Acid")
             limit = 7.2 if gender == "male" else 6.0
@@ -1565,9 +1511,6 @@ def interpret_lab_data(inputs: dict, derived: dict, patient: dict) -> list:
                 is_present = True
                 evidence.append(f"UA {uric}, Phos {phos}, K {k}, Ca {ca}")
 
-        # ---------------------------------------------------------------
-        # HEURISTIC FALLBACK
-        # ---------------------------------------------------------------
         if not is_present and name not in EXPLICIT_RULE_DISEASES: 
             entered_count = 0
             abnormal_count = 0
