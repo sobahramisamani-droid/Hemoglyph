@@ -11,19 +11,15 @@ from prediction import predict_2year_risks
 from disease_guidelines import DISEASE_GUIDELINES
 from AI import BloodLabChatbot
 
-# ---------- Temporary fix for missing BONE_MINERAL (if needed) ----------
 if not hasattr(FeatureCategory, "BONE_MINERAL"):
     FeatureCategory.BONE_MINERAL = "Bone & Mineral Panel"
-# ------------------------------------------------------------------------
 
-# Profile keys (not shown as lab inputs)
 PROFILE_KEYS = [
     "Age", "Sex", "Weight", "Height", "Waist", "Systolic_BP", "Diastolic_BP",
     "HeartRate", "SleepHours", "Smoking", "PhysicalActivity",
     "FamilyHistory_DM", "FamilyHistory_CAD", "FamilyHistory_HTN", "FamilyHistory_Obesity"
 ]
 
-# Qualitative features (checkboxes/selectboxes instead of number inputs)
 QUAL_FEATURES = {
     "UrineNitrite": ["Negative", "Positive"],
     "UrineLeukocyteEsterase": ["Negative", "Positive"],
@@ -45,7 +41,6 @@ QUAL_FEATURES = {
     "UrineBlood": ["Negative", "Trace", "Small", "Moderate", "Large"]
 }
 
-# Page setup
 st.set_page_config(
     page_title="Clinical Laboratory AI Assistant",
     page_icon="🧬",
@@ -53,7 +48,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom styling
 st.markdown("""
 <style>
     .stApp {
@@ -103,7 +97,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Panel → FeatureCategory mapping
 PANELS_TO_CATEGORIES = {
     "CBC And Differential": [FeatureCategory.CBC],
     "Iron, Vitamin, and Nutrition Panels": [FeatureCategory.IRON, FeatureCategory.VITAMIN, FeatureCategory.NUTRITION, FeatureCategory.MICRONUTRIENT],
@@ -123,7 +116,6 @@ PANELS_TO_CATEGORIES = {
     "Additional High-Yield Mapped Diseases": [FeatureCategory.KIDNEY, FeatureCategory.ELECTROLYTE, FeatureCategory.URINALYSIS, FeatureCategory.LIPID, FeatureCategory.CLINICAL]
 }
 
-# Guideline category → user‑selectable panel name
 GUIDELINE_CATEGORY_TO_PANEL = {
     "CBC And Differential": "CBC And Differential",
     "Iron, Vitamin, and Nutrition Panels": "Iron, Vitamin, and Nutrition Panels",
@@ -145,7 +137,6 @@ GUIDELINE_CATEGORY_TO_PANEL = {
     "Additional High-Yield Mapped Diseases": "Additional High-Yield Mapped Diseases"
 }
 
-# Patient presets
 PRESETS = {
     "Normal Healthy Adult": {
         "Age": 32.0, "Sex": "Male", "Weight": 74.0, "Height": 178.0, "Smoking": "No", "PhysicalActivity": "Moderate (3-5 days/wk)",
@@ -181,7 +172,6 @@ PRESETS = {
     }
 }
 
-# Session state initialisation
 if "patient_inputs" not in st.session_state:
     st.session_state.patient_inputs = {k: None for k in FEATURE_REGISTRY.keys()}
     st.session_state.patient_inputs["Age"] = 35.0
@@ -205,12 +195,10 @@ if "selected_panels" not in st.session_state:
         "Lipid Panels", "Renal Function and Urine Protein Panels"
     ]
 
-# Header
 st.title("🧬 Laboratory AI Assistant")
 st.markdown("##### Full‑Scope Guideline‑Based Lab Interpretation & 2‑Year Clinical Risk Forecasting")
 st.markdown("---")
 
-# Quick presets
 st.markdown("##### 🚀 Quick Patient Presets")
 cols = st.columns(len(PRESETS))
 for i, (name, preset_vals) in enumerate(PRESETS.items()):
@@ -233,7 +221,6 @@ for i, (name, preset_vals) in enumerate(PRESETS.items()):
 
 st.markdown("---")
 
-# Sidebar
 with st.sidebar:
     st.header("📋 Workflow Overview")
     st.markdown(f"**Step {st.session_state.step} of 4**")
@@ -258,7 +245,6 @@ with st.sidebar:
         st.success("All patient and lab values cleared.")
         st.rerun()
 
-# Progress bar
 step = st.session_state.step
 
 def get_step_style(step_num):
@@ -293,9 +279,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ==========================================
-# STEP 1 – PATIENT PROFILE
-# ==========================================
 if step == 1:
     st.markdown("### 👤 Step 1: Clinical Profile & Demographics")
     st.markdown("Enter basic patient parameters, vitals, lifestyle habits, and hereditary history.")
@@ -341,9 +324,6 @@ if step == 1:
             fh_ob_checked = st.checkbox("Family History of Obesity", value=(st.session_state.patient_inputs.get("FamilyHistory_Obesity") == "Yes"), key="input_fh_ob")
             st.session_state.patient_inputs["FamilyHistory_Obesity"] = "Yes" if fh_ob_checked else "No"
 
-# ==========================================
-# STEP 2 – SELECT PANELS
-# ==========================================
 elif step == 2:
     st.markdown("### 🧪 Step 2: Select Lab Panels")
     st.markdown("Choose the biomarker groups to evaluate. Only the selected panels will appear in the next step.")
@@ -361,14 +341,10 @@ elif step == 2:
     if not st.session_state.selected_panels:
         st.warning("⚠️ Please select at least one laboratory panel to proceed.")
 
-# ==========================================
-# STEP 3 – BIOMARKER INPUT
-# ==========================================
 elif step == 3:
     st.markdown("### 📋 Step 3: Enter Biomarker Values")
     st.markdown("Provide raw laboratory findings for the selected panels. Values are evaluated against dynamic, sex‑specific reference ranges.")
     gender_lower = st.session_state.patient_inputs["Sex"].lower()
-    # Initialise empty features with midpoints for selected panels
     for panel_name in st.session_state.selected_panels:
         categories = PANELS_TO_CATEGORIES[panel_name]
         filtered = [k for k, item in FEATURE_REGISTRY.items()
@@ -477,13 +453,9 @@ elif step == 3:
                             st.session_state.patient_inputs[f_key] = val_input
                 st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
-# ==========================================
-# STEP 4 – ANALYSIS & RESULTS
-# ==========================================
 elif step == 4:
     st.markdown("### 📊 Step 4: Diagnostics & AI Consultation")
     st.markdown("Review the guideline‑driven and AI‑powered evaluation of the patient's comprehensive diagnostic profile.")
-    # Prepare data
     clean_inputs = {k: v for k, v in st.session_state.patient_inputs.items() if v is not None}
     patient_prof = {
         "Age": clean_inputs.get("Age", 35.0),
@@ -500,29 +472,24 @@ elif step == 4:
     active_diagnoses = interpret_lab_data(clean_inputs, derived_markers, patient_prof)
     risk_predictions = predict_2year_risks(clean_inputs, derived_markers, patient_prof, active_diagnoses)
 
-    # ---------- Initialise chatbot ----------
     if "chatbot" not in st.session_state:
         st.session_state.chatbot = BloodLabChatbot()
     chatbot = st.session_state.chatbot
 
-    # Build context and store in chatbot
     chatbot.build_and_set_context(
         patient_prof, clean_inputs, derived_markers,
         active_diagnoses, risk_predictions,
         FEATURE_REGISTRY, PROFILE_KEYS
     )
 
-    # Generate initial summary once
     if "initial_summary" not in st.session_state:
         with st.spinner("Preparing your laboratory summary..."):
             st.session_state.initial_summary = chatbot.generate_initial_summary()
 
-    # Summary table
     st.markdown("### 📋 Clinical & Lab Parameters Summary")
     with st.expander("📊 Expand to View Summary Table", expanded=True):
         summary_rows = []
         gender_lower = st.session_state.patient_inputs["Sex"].lower()
-        # Demographics
         profile_labels = {
             "Age": "Age", "Sex": "Sex", "Weight": "Weight", "Height": "Height",
             "Waist": "Waist Circumference", "Systolic_BP": "Systolic BP", "Diastolic_BP": "Diastolic BP",
@@ -559,7 +526,6 @@ elif step == 4:
                     "Reference Range": ref_desc,
                     "Status": status_str
                 })
-        # Lab markers
         for panel_name in st.session_state.selected_panels:
             categories = PANELS_TO_CATEGORIES[panel_name]
             filtered = [(k, item) for k, item in FEATURE_REGISTRY.items()
@@ -594,7 +560,6 @@ elif step == 4:
                         "Reference Range": ref_desc,
                         "Status": status_str
                     })
-        # Derived metrics
         for d_key, d_val in derived_markers.items():
             f_data = FEATURE_REGISTRY.get(d_key, {})
             unit = f_data.get("unit", "")
@@ -628,7 +593,6 @@ elif step == 4:
 
     st.markdown("---")
 
-    # Tabs
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "🔬 Clinical Interpretations",
         "🔮 2‑Year Risk Forecasting",
@@ -638,7 +602,6 @@ elif step == 4:
     ])
 
     with tab1:
-        # Derived metrics
         st.markdown("#### 🔬 Derived Clinical Metrics")
         if derived_markers:
             d_cols = st.columns(min(len(derived_markers), 4))
@@ -654,7 +617,6 @@ elif step == 4:
         else:
             st.info("No derived metrics calculated yet.")
 
-        # Disease interpretation
         st.markdown("#### 🩺 Guideline‑Based Disease Interpretation")
         active_panel_diseases = []
         for panel_name in st.session_state.selected_panels:
@@ -961,17 +923,14 @@ Maintain an authoritative, precise, yet compassionate professional medical tone.
         st.markdown("Ask questions about your laboratory results, predicted conditions, and clinical findings. "
                      "Only questions related to your blood analysis will be answered.")
 
-        # Show initial summary
         if "initial_summary" in st.session_state:
             st.info("📋 **Your Laboratory Summary**")
             st.markdown(st.session_state.initial_summary)
 
-        # Display conversation history
         for msg in chatbot.history:
             with st.chat_message(msg["role"]):
                 st.markdown(msg["content"])
 
-        # Chat input
         if user_query := st.chat_input("Ask about your lab results..."):
             with st.chat_message("user"):
                 st.markdown(user_query)
@@ -981,7 +940,6 @@ Maintain an authoritative, precise, yet compassionate professional medical tone.
                 st.markdown(reply)
             st.rerun()
 
-# Navigation bar
 st.markdown("<div style='margin-top:30px;'></div>", unsafe_allow_html=True)
 col_prev, _, col_next = st.columns([1.5, 4, 1.5])
 with col_prev:
