@@ -26,7 +26,7 @@ class BloodLabChatbot:
 - Never diagnose or prescribe medication
 - Always recommend consulting a physician"""
 
-    MAX_QUESTIONS = 15       
+    MAX_QUESTIONS = 15
     KEEP_LAST_MESSAGES = 8
     MAX_NORMAL_VALUES = 3
 
@@ -136,9 +136,24 @@ class BloodLabChatbot:
         if not self.patient_context:
             raise ValueError("Patient context has not been set.")
 
+        lang = st.session_state.get("lang", "en")
+        if lang == "fa":
+            user_prompt = (
+                "لطفاً یک خلاصه مختصر و مفید از نتایج آزمایش من ارائه دهید، "
+                "با برجسته کردن مهمترین یافته‌های غیرطبیعی، بیماری‌های سازگار با گایدلاین‌ها "
+                "و هرگونه پیش‌بینی ریسک ۲ ساله. به زبانی ساده و قابل فهم برای یک فرد غیرپزشکی توضیح دهید."
+            )
+        else:
+            user_prompt = (
+                "Please provide a brief, friendly summary of my laboratory results, "
+                "highlighting the most important abnormal findings, compatible guideline-based "
+                "conditions, and any significant 2-year risk predictions. "
+                "Keep it understandable for a non-medical person."
+            )
+
         messages = [
             {"role": "system", "content": self.SYSTEM_INSTRUCTION + "\n\n" + self.patient_context},
-            {"role": "user", "content": "Please provide a brief, friendly summary of my laboratory results, highlighting the most important abnormal findings, compatible guideline-based conditions, and any significant 2-year risk predictions. Keep it understandable for a non-medical person."}
+            {"role": "user", "content": user_prompt}
         ]
         try:
             response = self.client.chat.completions.create(
