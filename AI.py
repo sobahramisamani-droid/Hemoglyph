@@ -38,7 +38,7 @@ class BloodLabChatbot:
         if api_key is None:
             try:
                 # اولویت اول: Streamlit Secrets
-                api_key = st.secrets["GEMINI_API_KEY"]
+                api_key = st.secrets.get("GEMINI_API_KEY")
             except (FileNotFoundError, KeyError, ImportError):
                 # اگر Streamlit نبود یا secrets تعریف نشده بود، از .env بخوان
                 from dotenv import load_dotenv
