@@ -123,7 +123,7 @@ QUAL_FEATURES = {
 }
 
 st.set_page_config(
-    page_title="Clinical Laboratory AI Assistant",
+    page_title="Hemoglyph",
     page_icon="🧬",
     layout="wide",
     initial_sidebar_state="expanded"
