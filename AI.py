@@ -34,7 +34,7 @@ class BloodLabChatbot:
     MAX_NORMAL_VALUES = 3           # حداکثر مقادیر طبیعی در Context
 
     # ----------------------------------------------------------------
-    def __init__(self, api_key: str | None = None, model: str = "gemini-2.5-flash"):
+    def __init__(self, api_key: str | None = None, model: str = "gemini-3.5-flash"):
         if api_key is None:
             try:
                 # اولویت اول: Streamlit Secrets
